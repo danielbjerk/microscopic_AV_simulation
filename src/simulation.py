@@ -15,7 +15,10 @@ class Simulation:
 
     # Class methods
     
-    def __init__(self, scenario, dict_sim_config) -> None:
+    def __init__(self, scenario, dict_sim_config=None) -> None:
+        if not dict_sim_config:
+            dict_sim_config = self.default_config()
+        
         self.scenario = scenario
         
         self.t_0 = dict_sim_config["time_start"]
