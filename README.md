@@ -1,7 +1,11 @@
 # Microscopic AV simulation
 
-## TODO:
+## TODO
+
 - Message-class
 
 ## Requirements
+
+- numpy
+- pygame
 - Toml
