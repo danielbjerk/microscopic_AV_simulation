@@ -1,9 +1,11 @@
 import numpy as np
 
 class Vehicle:
-    def __init__(self, config={}):
+    def __init__(self, route, config={}):
         # Set default configuration
         self.set_default_config()
+
+        self.route = route
 
         # Update configuration
         for attr, val in config.items():
@@ -53,6 +55,9 @@ class Vehicle:
 
         if self.stopped: 
             self.a = -self.b_max*self.v/self.v_max
+
+        if self.x >= self.route.cur_road.length:
+            return ("traversed_road", self)
         
     def stop(self):
         self.stopped = True

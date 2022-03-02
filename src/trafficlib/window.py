@@ -3,9 +3,7 @@ from pygame import gfxdraw
 import numpy as np
 
 class Window:
-    def __init__(self, sim, config={}):
-        # Simulation to draw
-        self.sim = sim
+    def __init__(self, config={}):
 
         # Set default configurations
         self.set_default_config()
@@ -16,8 +14,10 @@ class Window:
         
     def set_default_config(self):
         """Set default configuration"""
-        self.width = 1400
-        self.height = 900
+        #self.width = 1400
+        #self.height = 900
+        self.width = 1200
+        self.height = 800
         self.bg_color = (250, 250, 250)
 
         self.fps = 60
@@ -27,8 +27,7 @@ class Window:
         self.mouse_last = (0, 0)
         self.mouse_down = False
 
-
-    def loop(self, loop=None):
+    def draw_window(self):
         """Shows a window visualizing the simulation and runs the loop function."""
         
         # Create a pygame window
@@ -36,60 +35,50 @@ class Window:
         pygame.display.flip()
 
         # Fixed fps
-        clock = pygame.time.Clock()
+        self.clock = pygame.time.Clock()
 
         # To draw text
         pygame.font.init()
         self.text_font = pygame.font.SysFont('Lucida Console', 16)
 
-        # Draw loop
-        running = True
-        while running:
-            # Update simulation
-            if loop: loop(self.sim)
 
-            # Draw simulation
-            self.draw()
+    def animation_step(self, sim_state):
+        # Draw simulation
+        self.draw(sim_state)
 
-            # Update window
-            pygame.display.update()
-            clock.tick(self.fps)
+        # Update window
+        pygame.display.update()
+        self.clock.tick(self.fps)
 
-            # Handle all events
-            for event in pygame.event.get():
-                # Quit program if window is closed
-                if event.type == pygame.QUIT:
-                    running = False
-                # Handle mouse events
-                elif event.type == pygame.MOUSEBUTTONDOWN:
-                    # If mouse button down
-                    if event.button == 1:
-                        # Left click
-                        x, y = pygame.mouse.get_pos()
-                        x0, y0 = self.offset
-                        self.mouse_last = (x-x0*self.zoom, y-y0*self.zoom)
-                        self.mouse_down = True
-                    if event.button == 4:
-                        # Mouse wheel up
-                        self.zoom *=  (self.zoom**2+self.zoom/4+1) / (self.zoom**2+1)
-                    if event.button == 5:
-                        # Mouse wheel down 
-                        self.zoom *= (self.zoom**2+1) / (self.zoom**2+self.zoom/4+1)
-                elif event.type == pygame.MOUSEMOTION:
-                    # Drag content
-                    if self.mouse_down:
-                        x1, y1 = self.mouse_last
-                        x2, y2 = pygame.mouse.get_pos()
-                        self.offset = ((x2-x1)/self.zoom, (y2-y1)/self.zoom)
-                elif event.type == pygame.MOUSEBUTTONUP:
-                    self.mouse_down = False           
+        # Handle all events
+        for event in pygame.event.get():
+            # Quit program if window is closed
+            if event.type == pygame.QUIT:
+                running = False
+            # Handle mouse events
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                # If mouse button down
+                if event.button == 1:
+                    # Left click
+                    x, y = pygame.mouse.get_pos()
+                    x0, y0 = self.offset
+                    self.mouse_last = (x-x0*self.zoom, y-y0*self.zoom)
+                    self.mouse_down = True
+                if event.button == 4:
+                    # Mouse wheel up
+                    self.zoom *=  (self.zoom**2+self.zoom/4+1) / (self.zoom**2+1)
+                if event.button == 5:
+                    # Mouse wheel down 
+                    self.zoom *= (self.zoom**2+1) / (self.zoom**2+self.zoom/4+1)
+            elif event.type == pygame.MOUSEMOTION:
+                # Drag content
+                if self.mouse_down:
+                    x1, y1 = self.mouse_last
+                    x2, y2 = pygame.mouse.get_pos()
+                    self.offset = ((x2-x1)/self.zoom, (y2-y1)/self.zoom)
+            elif event.type == pygame.MOUSEBUTTONUP:
+                self.mouse_down = False           
 
-    '''Edit by Kristian: Removed the run function to the Simulation class.'''
-    # def run(self, steps_per_update=1):
-    #     """Runs the simulation by updating in every loop."""
-    #     def loop(sim):
-    #         sim.run(steps_per_update)
-    #     self.loop(loop)
 
     def convert(self, x, y=None):
         """Converts simulation coordinates to screen coordinates"""
@@ -233,8 +222,8 @@ class Window:
                 color
             )
 
-    def draw_roads(self):
-        for road in self.sim.roads:
+    def draw_roads(self, all_roads):
+        for road in all_roads:
             # Draw road background
             self.rotated_box(
                 road.start,
@@ -282,14 +271,12 @@ class Window:
 
         self.rotated_box((x, y), (l, h), cos=cos, sin=sin, centered=True)
 
-    def draw_vehicles(self):
-        for road in self.sim.roads:
-            # Draw vehicles
-            for vehicle in road.vehicles:
-                self.draw_vehicle(vehicle, road)
+    def draw_vehicles(self, all_vehicles):
+        for vehicle in all_vehicles:
+            self.draw_vehicle(vehicle, vehicle.route.cur_road)
 
-    def draw_signals(self):
-        for signal in self.sim.traffic_signals:
+    def draw_signals(self, all_signals):
+        for signal in all_signals:
             for i in range(len(signal.roads)):
                 color = (0, 255, 0) if signal.current_cycle[i] else (255, 0, 0)
                 for road in signal.roads[i]:
@@ -304,15 +291,15 @@ class Window:
                         cos=road.angle_cos, sin=road.angle_sin,
                         color=color)
 
-    def draw_status(self):
-        text_fps = self.text_font.render(f't={self.sim.t:.5}', False, (0, 0, 0))
-        text_frc = self.text_font.render(f'n={self.sim.frame_count}', False, (0, 0, 0))
+    def draw_status(self, t, frame_count):
+        text_fps = self.text_font.render(f't={t:.5}', False, (0, 0, 0))
+        text_frc = self.text_font.render(f'n={frame_count}', False, (0, 0, 0))
         
         self.screen.blit(text_fps, (0, 0))
         self.screen.blit(text_frc, (100, 0))
 
 
-    def draw(self):
+    def draw(self, sim_state):
         # Fill background
         self.background(*self.bg_color)
 
@@ -321,10 +308,19 @@ class Window:
         # self.draw_grid(100, (200,200,200))
         # self.draw_axes()
 
-        self.draw_roads()
-        self.draw_vehicles()
-        self.draw_signals()
+        (vehicles_on_roads, t, frame_count) = sim_state
+        
+        all_roads, all_vehicles = [], []
+        for road in vehicles_on_roads:
+            all_roads.append(road)
+            all_vehicles += vehicles_on_roads[road]
+        
+        all_signals = []
+
+        self.draw_roads(all_roads)
+        self.draw_vehicles(all_vehicles)
+        self.draw_signals(all_signals)
 
         # Draw status info
-        self.draw_status()
+        self.draw_status(t, frame_count)
         
