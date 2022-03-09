@@ -1,24 +1,46 @@
 import matplotlib.pyplot as plt
+import networkx as nx
 
-def children_of_roads(roads):
-    children = {}
+def all_road_connections(roads):
+    # Tar liste av start-slutt-koordinat-tupler og finner alle veier som 
+    # peker ut av en annen vei. 
+    # Returnerer dette som en liste av [fra-vei-indeks, til-vei-indeks].
+
+    #children = {}
+    children = []
     for i in range(len(roads)):
-        children[i] = []
+        #children[i] = []
         end = roads[i][1]
 
         for j in range(len(roads)):
             if j == i:
                 continue
             elif roads[j][0] == end:
-                children[i].append(j)
+                #children[i].append(j)
+                children.append((i, j))
+    return children
+
+def sources_and_sinks(nodes, edges):
+    sources = [n for n in nodes]
+    sinks = [n for n in nodes]
+    for (from_i, to_i) in edges:
+        if from_i in sinks: sinks.remove(from_i)
+        if to_i in sources: sources.remove(to_i)
+    return sources, sinks
 
 
 # Tar liste av alle vei-segmentene og lager alle mulige router over dette kartet.
-def route_generator(children, sources, sinks):
-    if not sources or not sinks: return []
+def all_valid_routes(all_roads, sources, sinks, children):
+    G = nx.DiGraph()
+    G.add_nodes_from(all_roads)
+    G.add_edges_from(children)
+    valid_routes = []
+
     for source in sources:
         for sink in sinks:
-            pass
+            routes = nx.all_simple_paths(G, source, sink)
+            if routes: valid_routes += list(routes)
+    return valid_routes
         
 
 
@@ -58,5 +80,8 @@ if __name__=="__main__":
 
     plot_roads(roads)
 
-    children = children_of_roads(roads)
-    print(route_generator(children, [0, 2, 6, 9, 11], [1, 3, 4, 8, 10, 12]))
+    nodes = [i for i in range(14 + 1)]
+    edges = all_road_connections(roads)
+    sources, sinks = sources_and_sinks(nodes, edges)
+    
+    print(all_valid_routes(nodes, sources, sinks, edges))
