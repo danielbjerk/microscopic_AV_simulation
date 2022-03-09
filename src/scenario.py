@@ -27,6 +27,8 @@ class Scenario:
         self.starting_vehicles.append(Vehicle(Route(self.legal_routes[2])))
         self.starting_vehicles.append(Vehicle(Route(self.legal_routes[3])))
         self.starting_vehicles.append(Vehicle(Route(self.legal_routes[4])))
+        self.starting_vehicles.append(Vehicle(Route(self.legal_routes[5])))
+        self.starting_vehicles.append(Vehicle(Route(self.legal_routes[6])))
 
         # for attr, val in config.items():
         #     setattr(self, attr, val)
