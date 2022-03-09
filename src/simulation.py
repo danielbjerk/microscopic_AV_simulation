@@ -1,6 +1,9 @@
 from traffic_manager import TrafficManager
 from trafficlib import *
+from vehicle import Vehicle
+from route import Route
 from road import Road
+from random import random, randint
 # from .vehicle_generator import VehicleGenerator
 # from .traffic_signal import TrafficSignal
 
@@ -19,7 +22,7 @@ class Simulation:
         self.t = 0.0
         self.frame_count = 0    # Frame count keeping
         self.dt = 1/60          # Simulation time step
-        # self.generators = []
+        self.generate_prob = 0.002 # Probaility of new car on a road
         self.traffic_signals = []
 
 
@@ -53,12 +56,18 @@ class Simulation:
         
         self.traffic_manager.update_traffic(self.dt)
 
-        # Add vehicles
-        # for gen in self.generators:
-        #     gen.update()
+        for start_road in self.scenario.routes:
+            self.generate_vehicle(self.scenario.routes[start_road])
 
         # for signal in self.traffic_signals:
         #     signal.update(self)
+
+    def generate_vehicle(self, routes):
+        # Easy fix for now. 
+        if random() < self.generate_prob:
+            route = routes[randint(0, len(routes)-1)]
+            route = Route([self.scenario.map[r] for r in route])
+            self.traffic_manager.add_vehicle(Vehicle(route))
 
     def run(self, steps):
         win = Window()

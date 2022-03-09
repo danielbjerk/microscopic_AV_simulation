@@ -16,19 +16,12 @@ class Scenario:
             map.append(Road(start, stop))
         self.map = map
 
-        legal_routes = []
-        for indices in config["legal_routes"]:
-            legal_routes.append([self.map[i] for i in indices])
-        self.legal_routes = legal_routes
+        # TODO: Refactor. Jeg bruker bare indekser for veier i stedet for Roads. Er det dumt? Vi har jo map.
+        # routes er en dictionary fra start_road til liste med ruter. Rutene er også bare en liste med vei-indekser.
+        start_roads = set([r[0] for r in config["legal_routes"]])
+        self.routes = {s: [r for r in config["legal_routes"] if r[0]==s] for s in start_roads}        
 
         self.starting_vehicles = []
-        self.starting_vehicles.append(Vehicle(Route(self.legal_routes[0])))
-        self.starting_vehicles.append(Vehicle(Route(self.legal_routes[1])))
-        self.starting_vehicles.append(Vehicle(Route(self.legal_routes[2])))
-        self.starting_vehicles.append(Vehicle(Route(self.legal_routes[3])))
-        self.starting_vehicles.append(Vehicle(Route(self.legal_routes[4])))
-        self.starting_vehicles.append(Vehicle(Route(self.legal_routes[5])))
-        self.starting_vehicles.append(Vehicle(Route(self.legal_routes[6])))
 
         # for attr, val in config.items():
         #     setattr(self, attr, val)

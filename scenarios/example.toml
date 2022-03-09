@@ -19,6 +19,5 @@ roads = [
 
 legal_routes = [[0, 1], [2, 3], [2, 13, 8], [2, 13, 14], [6, 5, 7, 1], [6, 5, 4], [9, 10], [11, 12]]
 
-
 # generation
 stochastic = true

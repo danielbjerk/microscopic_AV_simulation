@@ -6,8 +6,6 @@ class Road:
         self.start = start
         self.end = end
 
-        self.vehicles = deque()
-
         self.init_properties()
 
     def init_properties(self):
