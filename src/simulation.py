@@ -66,9 +66,13 @@ class Simulation:
 
         win.draw_window()
 
+        metrics = {}
+
         for _ in range(steps):  # Eller, while not stop
             self.update()
 
             # Metric.measure(sim.state)
 
             win.animation_step((self.traffic_manager.vehicles_on_road, self.t, self.frame_count))
+
+        return metrics
