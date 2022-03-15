@@ -1,4 +1,3 @@
-from turtle import update
 from vehicle import Vehicle
 
 class TrafficManager:
@@ -14,6 +13,21 @@ class TrafficManager:
 
     def all_vehicles_on_road(self, road):
         return self.vehicles_on_road[road]
+
+    def vehicle_in_front(self, vehicle):    # trenger ikke være klasse-metode
+        """
+        Notes:
+        Warning! Will not take account for vehicles a single super-small road-segment ahead.
+        """
+        cur_road = vehicle.route.cur_road
+        all_vehicles = self.vehicles_on_road[cur_road]
+        cur_index = all_vehicles.index(vehicle)
+        
+        if not cur_index:
+            in_front =  None
+        else:
+            in_front = all_vehicles[cur_index - 1]
+        return in_front
 
     def add_vehicle(self, vehicle):
         if vehicle in self.vehicles:
@@ -55,7 +69,7 @@ class TrafficManager:
 
     def update_traffic(self, dt):
         
-        vehicle_results = [v.update(dt, None) for v in self.vehicles]   # TODO: None-lead car hardcoded
+        vehicle_results = [v.update(dt, self.vehicle_in_front(v)) for v in self.vehicles]   # TODO: None-lead car hardcoded
         results = [self.parse_vehicle_update_msg(msg) for msg in vehicle_results]
 
         # Do more? What other traffic parts must be updated at each time moment?
