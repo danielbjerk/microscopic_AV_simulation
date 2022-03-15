@@ -324,3 +324,10 @@ class Window:
         # Draw status info
         self.draw_status(t, frame_count)
         
+
+def init_animation():
+    win = Window()
+    win.zoom = 5
+
+    win.draw_window()
+    return win
