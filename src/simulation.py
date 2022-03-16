@@ -70,7 +70,11 @@ class Simulation:
         if random() < self.generate_prob:
             route = routes[randint(0, len(routes)-1)]
             route = Route([self.scenario.map[r] for r in route])
-            self.traffic_manager.add_vehicle(Vehicle(route))
+            smart_vehicle_adoption = 0.9    # TODO: variabel
+            if random() < smart_vehicle_adoption:
+                self.traffic_manager.add_vehicle(Vehicle(route, {"smart": True}))
+            else:
+                self.traffic_manager.add_vehicle(Vehicle(route, {"smart": False}))
 
     def run(self, steps):
         if self.animate: win = window.init_animation()

@@ -269,7 +269,9 @@ class Window:
         x = road.start[0] + cos * vehicle.x 
         y = road.start[1] + sin * vehicle.x 
 
-        self.rotated_box((x, y), (l, h), cos=cos, sin=sin, centered=True)
+        color = (255, 0, 0) if vehicle.smart else (0, 0, 255)
+
+        self.rotated_box((x, y), (l, h), cos=cos, sin=sin, centered=True, color=color)
 
     def draw_vehicles(self, all_vehicles):
         for vehicle in all_vehicles:

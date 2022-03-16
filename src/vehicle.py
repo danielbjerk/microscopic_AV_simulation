@@ -17,6 +17,9 @@ class Vehicle:
         self.link = False
         self.copy_next_v = False
 
+        for attr, val in config.items():
+            setattr(self, attr, val)
+
     def set_default_config(self):
         #Parameters for idm: 
         self.l = 4              # length of vehicle i
@@ -28,7 +31,7 @@ class Vehicle:
         self.b_max = 4.61       # comfortable deceleration of vehicle i
 
         self.x = 0
-        self.v = 0#self.v_max
+        self.v = self.v_max
         self.a = 0
         self.stopped = False
         

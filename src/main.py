@@ -7,7 +7,7 @@ scenario_path = "scenarios/example.toml"
 scenario_config = toml.load(scenario_path)
 scenario = Scenario(scenario_config)
 
-sim = Simulation(scenario, {"animate": False})
+sim = Simulation(scenario, {"animate": True})
 
 # Start simulation
 fps = 60

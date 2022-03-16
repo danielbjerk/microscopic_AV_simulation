@@ -69,7 +69,7 @@ class TrafficManager:
 
     def update_traffic(self, dt):
         
-        vehicle_results = [v.update(dt, self.vehicle_in_front(v)) for v in self.vehicles]   # TODO: None-lead car hardcoded
+        vehicle_results = [v.update(dt, self.vehicle_in_front(v)) for v in self.vehicles]
         results = [self.parse_vehicle_update_msg(msg) for msg in vehicle_results]
 
         # Do more? What other traffic parts must be updated at each time moment?
