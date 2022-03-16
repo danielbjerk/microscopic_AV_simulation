@@ -4,6 +4,8 @@ from vehicle import Vehicle
 from route import Route
 from road import Road
 from random import random, randint
+from metrics import Metrics
+
 # from .vehicle_generator import VehicleGenerator
 # from .traffic_signal import TrafficSignal
 
@@ -20,6 +22,7 @@ class Simulation:
     def set_default_config(self):
         self.t_0 = 0.0            # Time keeping
         self.t = 0.0
+        self.animate = True
         self.frame_count = 0    # Frame count keeping
         self.dt = 1/60          # Simulation time step
         self.generate_prob = 0.002 # Probaility of new car on a road
@@ -70,14 +73,15 @@ class Simulation:
             self.traffic_manager.add_vehicle(Vehicle(route))
 
     def run(self, steps):
-        win = Window()
-        win.zoom = 5
+        if self.animate: win = window.init_animation()
 
-        win.draw_window()
+        metrics = Metrics() # Burde kanskje være klassevariabel i simulation? Kanskje ikke?
 
         for _ in range(steps):  # Eller, while not stop
             self.update()
 
-            # Metric.measure(sim.state)
+            metrics.measure(self.t, self.traffic_manager.vehicles)
 
-            win.animation_step((self.traffic_manager.vehicles_on_road, self.t, self.frame_count))
+            if self.animate: win.animation_step((self.traffic_manager.vehicles_on_road, self.t, self.frame_count))
+
+        return metrics
