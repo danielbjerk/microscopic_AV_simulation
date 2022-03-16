@@ -61,10 +61,8 @@ class DumbVehicle(Vehicle):
         self.stopped = False
 
         self.smart = False
-        self.link = False
-        self.copy_next_v = False
 
-        self.v_max = 7
+        self.v_max = 7  # tmp
 
         self.color = (0, 0, 255)
 
@@ -90,6 +88,7 @@ class SmartVehicle(Vehicle):
         self.T = 2             # Reaction time of vehicle i's driver. Set to 0 when self.smart==True.
         self.delta = 4          # smoothness of the acceleration
         self.s0 = 4             # min desired distance between vehicle i and i-1 
+        self.link_window = 4
 
         self.a_max = 1.44       # Max accel of vehicle i    # 4s
         self.b_max = 4.61       # comfortable deceleration of vehicle i
@@ -97,8 +96,7 @@ class SmartVehicle(Vehicle):
         self.stopped = False
 
         self.smart = True
-        self.link = False
-        self.copy_next_v = False
+        self.state = "init"
 
         self.color = (255, 0, 0)
 
@@ -106,55 +104,55 @@ class SmartVehicle(Vehicle):
             setattr(self, key, attr)
 
     def control_acceleration(self, car_infront):
-        if self.link and car_infront:
-            # self.v = car_infront.v    # TODO: Hvordan håndtere at vi ønsker instanteneous endring til self.v = car_infront.v
-            # Nå overskriver self.v av physics
-            self.a = car_infront.a
-        else:
-            #update velocity and position
-            if self.copy_next_v and car_infront:
-                # self.v = car_infront.v    # TODO: Her også!
-                self.copy_next_v = False
-            
-            #update acceleration:
-            if car_infront==None:
-                self.a = self.a_max*(1-(self.v/self.v_max)**self.delta) #a_freeroad
-            elif self.smart and car_infront.smart: 
-                delta_s = car_infront.x-self.x-car_infront.l
-                delta_v = self.v-car_infront.v 
-                s_desired = self.s0 #s_desired can be this small because we copy the car infront
-                
-                if delta_s-s_desired > 0.2:
-                    if car_infront.a <= 0:
-                        self.a = idm(s_desired, delta_s, self.v, self.a_max, self.v_max, self.delta)
-                    else:
-                        if abs(delta_v)<0.1:
-                            self.copy_next_v = True
-                            self.a=car_infront.a
-                        else:
-                            self.a = idm(s_desired, delta_s, self.v, self.a_max, self.v_max, self.delta)
-                else:
-                    if abs(delta_v)<0.1:
-                        self.link = True
-                        self.a=car_infront.a
-                    else:
-                        self.a = idm(s_desired, delta_s, self.v, self.a_max, self.v_max, self.delta)
-        
+        # Change state, may be moved to own state-machine function
+        if car_infront:
+            delta_s = car_infront.x - self.x - car_infront.l
+            delta_v = self.v - car_infront.v
+            if car_infront.smart:
+                s_desired = self.s0 + self.link_window
             else:
-                delta_s = car_infront.x-self.x-car_infront.l
-                delta_v = self.v-car_infront.v 
-                s_desired = self.s0+self.v*self.T+self.v*(delta_v)/(2*np.sqrt(self.a_max*self.b_max))
-                #s_desired is bigger here because the car infront is a dumb vehicle.
-                self.a = idm(s_desired, delta_s, self.v, self.a_max, self.v_max, self.delta)
+                s_desired = self.s0 + self.v*self.T + self.v*(delta_v)/(2*np.sqrt(self.a_max*self.b_max))
+
+            if -0.2*self.link_window < delta_s - s_desired < 1.2*self.link_window and car_infront.smart:
+                self.state = "linked"
+            elif delta_s <= self.s0:
+                self.state = "too_close_infront"
+            else:
+                self.state = "far_from_infront"
+
+        elif not car_infront:
+            self.state = "alone_on_road"
         
-        if not car_infront:
-            self.link = False
-            self.copy_next_v = False
+        else:
+            self.state = "undefined"
+        
+
+        # Take action based on state
+        if self.state == "alone_on_road":
+            new_a = self.a_max*(1-(self.v/self.v_max)**self.delta)     # Freeroad-acceleration
+
+        elif self.state == "too_close_infront" or \
+        self.state == "far_from_infront":
+            new_a = idm(s_desired, delta_s, self.v, self.a_max, self.v_max, self.delta)
+
+        elif self.state == "linked":
+            # Hacky løsning
+            # Trenger egen tilstand "linking" som bruker idm frem til hastigheter er innenfor terskel 
+            K_p = -self.b_max/2
+            new_a = car_infront.a + K_p*delta_v
+
+        else:
+            new_a = self.a
+        
+        self.a = new_a
+        return
 
     def change_color(self):
-        if self.copy_next_v:
-            self.color = (0, 255, 0)
-        elif self.link:
+        if self.state == "linked":
             self.color = (120, 120, 120)
+        elif self.state == "too_close_infront" or \
+        self.state == "far_from_infront" or \
+        self.state == "alone_on_road":
+            self.color = (155, 0, 155)
         else:
-            self.color = (255, 0, 0)
+            self.color = (255, 255, 255)
