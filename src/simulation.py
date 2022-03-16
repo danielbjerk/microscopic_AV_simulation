@@ -1,6 +1,6 @@
 from traffic_manager import TrafficManager
 from trafficlib import *
-from vehicle import Vehicle
+from vehicle import DumbVehicle, SmartVehicle
 from route import Route
 from road import Road
 from random import random, randint
@@ -72,9 +72,9 @@ class Simulation:
             route = Route([self.scenario.map[r] for r in route])
             smart_vehicle_adoption = 0.9    # TODO: variabel
             if random() < smart_vehicle_adoption:
-                self.traffic_manager.add_vehicle(Vehicle(route, {"smart": True}))
+                self.traffic_manager.add_vehicle(SmartVehicle(route))
             else:
-                self.traffic_manager.add_vehicle(Vehicle(route, {"smart": False}))
+                self.traffic_manager.add_vehicle(DumbVehicle(route))
 
     def run(self, steps):
         if self.animate: win = window.init_animation()
