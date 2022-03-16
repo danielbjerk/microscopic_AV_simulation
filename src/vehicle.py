@@ -47,7 +47,7 @@ class Vehicle:
 
 
 class DumbVehicle(Vehicle):
-    def __init__(self, route):
+    def __init__(self, route, config={}):
         super().__init__(route)
 
         #Parameters for idm: 
@@ -64,7 +64,12 @@ class DumbVehicle(Vehicle):
         self.link = False
         self.copy_next_v = False
 
+        self.v_max = 7
+
         self.color = (0, 0, 255)
+
+        for key, attr in config.items():
+            setattr(self, key, attr)
 
     def control_acceleration(self, car_infront):
         if car_infront:
@@ -78,11 +83,11 @@ class DumbVehicle(Vehicle):
 
 
 class SmartVehicle(Vehicle):
-    def __init__(self, route):
+    def __init__(self, route, config={}):
         super().__init__(route)
 
         #Parameters for idm: 
-        self.T = 0             # Reaction time of vehicle i's driver. Set to 0 when self.smart==True.
+        self.T = 2             # Reaction time of vehicle i's driver. Set to 0 when self.smart==True.
         self.delta = 4          # smoothness of the acceleration
         self.s0 = 4             # min desired distance between vehicle i and i-1 
 
@@ -96,6 +101,9 @@ class SmartVehicle(Vehicle):
         self.copy_next_v = False
 
         self.color = (255, 0, 0)
+
+        for key, attr in config.items():
+            setattr(self, key, attr)
 
     def control_acceleration(self, car_infront):
         if self.link and car_infront:
@@ -135,7 +143,7 @@ class SmartVehicle(Vehicle):
             else:
                 delta_s = car_infront.x-self.x-car_infront.l
                 delta_v = self.v-car_infront.v 
-                s_desired = self.s0
+                s_desired = self.s0+self.v*self.T+self.v*(delta_v)/(2*np.sqrt(self.a_max*self.b_max))
                 #s_desired is bigger here because the car infront is a dumb vehicle.
                 self.a = idm(s_desired, delta_s, self.v, self.a_max, self.v_max, self.delta)
         

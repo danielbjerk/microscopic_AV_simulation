@@ -14,4 +14,6 @@ class Metrics:
 
     def plot_all(self):
         avgs = np.array(self.avg_speeds)
-        plotting.plot_timeseries(avgs, "Average speed", "[m/s]")
+        avg_over_avgs = np.average(avgs[avgs[:,1] != np.array(None)][:,1])
+        print(f"Average speed: {avg_over_avgs}")
+        #plotting.plot_timeseries(avgs, "Average speed", "[m/s]")
