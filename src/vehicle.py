@@ -20,6 +20,8 @@ class Vehicle:
         for attr, val in config.items():
             setattr(self, attr, val)
 
+        self.color = (255, 0, 0) if self.smart else (0, 0, 255)
+
     def set_default_config(self):
         #Parameters for idm: 
         self.l = 4              # length of vehicle i
@@ -40,7 +42,7 @@ class Vehicle:
     #(where self.index is the vehicles index on the road).
     def update(self, dt, car_infront=None):  
         #update of v, p and a if vehicle is linked
-        if self.link:
+        if self.link and car_infront:
             self.v = car_infront.v
             self.x += self.v*dt + self.a*(dt**2)/2
             self.a = car_infront.a         
@@ -51,7 +53,7 @@ class Vehicle:
             
         else:
             #update velocity and position
-            if self.copy_next_v:
+            if self.copy_next_v and car_infront:
                 self.v = car_infront.v
                 self.x += self.v*dt + self.a*(dt**2)/2
                 self.copy_next_v = False
