@@ -1,13 +1,15 @@
 from vehicle import Vehicle
+from collections import deque
 
 class TrafficManager:
 
-    def __init__(self, starting_vehicles, map) -> None:
+    def __init__(self, sources, starting_vehicles, map) -> None:
         self.vehicles = starting_vehicles# List(Vehicle)# biler som skal følge ruten som inneholder veier.
-        self.vehicles_on_road = dict() # Dictionary mellom road og hvilke vehicles som er på den veien. (unødvendig?)
+        self.vehicles_on_road = {road: [] for road in map} # Dictionary mellom road og hvilke vehicles som er på den veien. (unødvendig?)
+
+        self.map = map # En del av quick fixen "source_road" i update_traffic. Må fikses opp i. Kanksje er det en bedre løsning å ha mappet?
+        self.vehicle_buffers = {source: deque() for source in sources}
         
-        for road in map:
-            self.vehicles_on_road[road] = []
         for v in starting_vehicles:
             self.vehicles_on_road[v.route.cur_road].append(v)
 
@@ -29,13 +31,12 @@ class TrafficManager:
             in_front = all_vehicles[cur_index - 1]
         return in_front
 
-    def add_vehicle(self, vehicle):
-        if vehicle in self.vehicles:
-            raise Exception("Undefined behaviour, vehicle already in simulation")
-        else:
-            self.vehicles.append(vehicle)
-            self.vehicles_on_road[vehicle.route.cur_road].append(vehicle)
-            return ("vehicle_added", vehicle)
+    def add_vehicle(self, source, vehicle):
+        self.vehicle_buffers[source].append(vehicle)
+
+        # Diagnostikk. Skal fjernes.
+        if len(self.vehicle_buffers[source]) == 30:
+            print("Cars in queue at source", source, "exceeded 30.")
 
     def remove_vehicle(self, vehicle):
         try:
@@ -68,6 +69,16 @@ class TrafficManager:
         return result
 
     def update_traffic(self, dt):
+
+        for source, buffer in self.vehicle_buffers.items():
+            if buffer:
+                vehicle = buffer[0]
+                source_road = self.map[source]
+                if not self.vehicles_on_road[source_road]\
+                or self.vehicles_on_road[source_road][-1].x > vehicle.s0 + vehicle.l:
+                    self.vehicles.append(vehicle)
+                    self.vehicles_on_road[source_road].append(vehicle)
+                    buffer.popleft()
         
         vehicle_results = [v.update(dt, self.vehicle_in_front(v)) for v in self.vehicles]
         results = [self.parse_vehicle_update_msg(msg) for msg in vehicle_results]

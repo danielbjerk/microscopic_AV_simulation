@@ -5,19 +5,25 @@ from route import Route
 from road import Road
 from random import random, randint
 from metrics import Metrics
-
-# from .vehicle_generator import VehicleGenerator
-# from .traffic_signal import TrafficSignal
+from numpy.random import default_rng
 
 class Simulation:    
     def __init__(self, scenario, config={}):
-        self.scenario = scenario
         # Set default configuration
         self.set_default_config()
-        self.traffic_manager = TrafficManager(starting_vehicles=scenario.starting_vehicles, map=scenario.map)
+
         # Update configuration
         for attr, val in config.items():
             setattr(self, attr, val)
+        
+        self.scenario = scenario
+        self.traffic_manager = TrafficManager(sources=scenario.sources, starting_vehicles=scenario.starting_vehicles, map=scenario.map)
+        
+        self.generator = default_rng()
+
+        self.sources = scenario.sources
+        self.arrival_rates = scenario.arrival_rates
+        self.arrival_times = {source: self.generator.exponential(1/rate) for source, rate in self.arrival_rates.items()}
 
     def set_default_config(self):
         self.t_0 = 0.0            # Time keeping
@@ -25,10 +31,7 @@ class Simulation:
         self.animate = True
         self.frame_count = 0    # Frame count keeping
         self.dt = 1/60          # Simulation time step
-        self.generate_prob = 0.002 # Probaility of new car on a road
         self.traffic_signals = []
-
-
 
     # def create_gen(self, config={}):
     #     gen = VehicleGenerator(self, config)
@@ -59,22 +62,26 @@ class Simulation:
         
         self.traffic_manager.update_traffic(self.dt)
 
-        for start_road in self.scenario.routes:
-            self.generate_vehicle(self.scenario.routes[start_road])
+        for source in self.sources:
+            self.generate_vehicle(source, self.scenario.routes[source])
 
         # for signal in self.traffic_signals:
         #     signal.update(self)
 
-    def generate_vehicle(self, routes):
-        # Easy fix for now. 
-        if random() < self.generate_prob:
-            route = routes[randint(0, len(routes)-1)]
-            route = Route([self.scenario.map[r] for r in route])
-            smart_vehicle_adoption = 0.9    # TODO: variabel
-            if random() < smart_vehicle_adoption:
-                self.traffic_manager.add_vehicle(SmartVehicle(route))
+    def generate_vehicle(self, source, routes):
+        if self.t >= self.arrival_times[source]:
+            # Generate new vehicle at source
+            random_route = routes[randint(0, len(routes)-1)]
+            route = Route([self.scenario.map[r] for r in random_route])
+
+            # Add a smart car or a normal car to the queue.
+            if random() < 0.5:
+                self.traffic_manager.add_vehicle(source, SmartVehicle(route))
             else:
-                self.traffic_manager.add_vehicle(DumbVehicle(route))
+                self.traffic_manager.add_vehicle(source, DumbVehicle(route))
+
+            # Draw arrival time for the next vehicle at this source
+            self.arrival_times[source] = self.generator.exponential(1/self.arrival_rates[source])
 
     def run(self, steps):
         if self.animate: win = window.init_animation()
