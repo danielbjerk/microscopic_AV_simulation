@@ -76,6 +76,8 @@ class TrafficManager:
                 source_road = self.map[source]
                 if not self.vehicles_on_road[source_road]\
                 or self.vehicles_on_road[source_road][-1].x > vehicle.s0 + vehicle.l:
+                    if self.vehicles_on_road[source_road]:
+                        vehicle.v = self.vehicles_on_road[source_road][-1].v
                     self.vehicles.append(vehicle)
                     self.vehicles_on_road[source_road].append(vehicle)
                     buffer.popleft()
