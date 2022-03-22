@@ -1,4 +1,3 @@
-from vehicle import Vehicle
 from collections import deque
 
 class TrafficManager:

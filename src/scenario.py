@@ -1,13 +1,6 @@
 from road import Road
-from vehicle import Vehicle
-from route import Route
 
 class Scenario:
-
-    vehicles_0 = None
-    vehicle_spawns = None
-
-
     def __init__(self, config=None):
         if not config: config = self.default_config()
         
@@ -22,12 +15,9 @@ class Scenario:
         self.routes = {s: [r for r in config["legal_routes"] if r[0]==s] for s in self.sources}        
 
         # Dictionary: {source: rate}. Source is int and rate is float.
-        self.arrival_rates = {source: rate for source, rate in zip(self.sources,config["arrival_rates"])}
+        self.arrival_times = {source: time for source, time in zip(self.sources, config["arrival_times"])}
 
         self.starting_vehicles = []
-
-        # for attr, val in config.items():
-        #     setattr(self, attr, val)
 
     def default_config(self):
         config = {}

@@ -19,9 +19,7 @@ roads = [
 
 legal_routes = [[0, 1], [2, 3], [2, 13, 8], [2, 13, 14], [6, 5, 7, 1], [6, 5, 4], [9, 10], [11, 12]]
 
-# Hardkodet
-# Dette er rater. Kanskje det ville vært mer intuitivt med forventede tider mellom biler.
-arrival_rates = [0.01, 0.01, 0.01, 0.3, 0.01]
+arrival_times = [50, 50, 50, 20, 10]
 
 # generation
 stochastic = true

@@ -2,13 +2,12 @@ from traffic_manager import TrafficManager
 from trafficlib import *
 from vehicle import DumbVehicle, SmartVehicle
 from route import Route
-from road import Road
 from random import random, randint
 from metrics import Metrics
 from numpy.random import default_rng
 
 class Simulation:    
-    def __init__(self, scenario, config={}):
+    def __init__(self, scenario, **config):
         # Set default configuration
         self.set_default_config()
 
@@ -22,15 +21,14 @@ class Simulation:
         self.generator = default_rng()
 
         self.sources = scenario.sources
-        self.arrival_rates = scenario.arrival_rates
-        self.arrival_times = {source: self.generator.exponential(1/rate) for source, rate in self.arrival_rates.items()}
+        self.arrival_times = scenario.arrival_times
+        self.arrival_times = {source: self.generator.exponential(time) for source, time in self.arrival_times.items()}
 
     def set_default_config(self):
-        self.t_0 = 0.0            # Time keeping
-        self.t = 0.0
-        self.animate = True
+        self.t = 0.0            # Time keeping
         self.frame_count = 0    # Frame count keeping
-        self.dt = 1/60          # Simulation time step
+        self.fps = 60           # Frames per second
+        self.dt = 1/self.fps    # Simulation time step
         self.traffic_signals = []
 
     # def create_gen(self, config={}):
@@ -51,9 +49,9 @@ class Simulation:
         pass
 
     def update(self):
-        t_old = self.t
+        # t_old = self.t
         self.t += self.dt
-        t_new = self.t
+        # t_new = self.t
         self.frame_count += 1
 
         # Implementer senere
@@ -81,18 +79,25 @@ class Simulation:
                 self.traffic_manager.add_vehicle(source, DumbVehicle(route))
 
             # Draw arrival time for the next vehicle at this source
-            self.arrival_times[source] = self.generator.exponential(1/self.arrival_rates[source])
+            self.arrival_times[source] = self.generator.exponential(self.arrival_times[source])
 
-    def run(self, steps):
-        if self.animate: win = window.init_animation()
+    def run(self, duration, animate = True, steps_per_frame = 1):
+        """Run the simulation. The duration is in seconds."""
+        if animate:
+            win = Window()
+            win.start_animation()
 
         metrics = Metrics() # Burde kanskje være klassevariabel i simulation? Kanskje ikke?
 
-        for _ in range(steps):  # Eller, while not stop
-            self.update()
+        for _ in range(duration*self.fps):
+            for _ in range(steps_per_frame):
+                self.update()
+                metrics.measure(self.t, self.traffic_manager.vehicles)
 
-            metrics.measure(self.t, self.traffic_manager.vehicles)
-
-            if self.animate: win.animation_step((self.traffic_manager.vehicles_on_road, self.t, self.frame_count))
+            if animate:
+                quit = win.animation_step((self.traffic_manager.vehicles_on_road, self.t, self.frame_count))
+            
+            if quit:
+                break
 
         return metrics

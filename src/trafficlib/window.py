@@ -27,8 +27,8 @@ class Window:
         self.mouse_last = (0, 0)
         self.mouse_down = False
 
-    def draw_window(self):
-        """Shows a window visualizing the simulation and runs the loop function."""
+    def start_animation(self):
+        """Draws a window visualizing the simulation."""
         
         # Create a pygame window
         self.screen = pygame.display.set_mode((self.width, self.height))
@@ -50,11 +50,14 @@ class Window:
         pygame.display.update()
         self.clock.tick(self.fps)
 
+        # For telling the simulation to quit
+        quit = False
+
         # Handle all events
         for event in pygame.event.get():
             # Quit program if window is closed
             if event.type == pygame.QUIT:
-                running = False
+                quit = True
             # Handle mouse events
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 # If mouse button down
@@ -77,7 +80,8 @@ class Window:
                     x2, y2 = pygame.mouse.get_pos()
                     self.offset = ((x2-x1)/self.zoom, (y2-y1)/self.zoom)
             elif event.type == pygame.MOUSEBUTTONUP:
-                self.mouse_down = False           
+                self.mouse_down = False
+        return quit
 
 
     def convert(self, x, y=None):
@@ -323,11 +327,3 @@ class Window:
 
         # Draw status info
         self.draw_status(t, frame_count)
-        
-
-def init_animation():
-    win = Window()
-    win.zoom = 5
-
-    win.draw_window()
-    return win
