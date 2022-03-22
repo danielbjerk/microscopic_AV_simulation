@@ -12,6 +12,9 @@ class Metrics:
         avg_speed_i = np.average(velocities) if velocities else None
         self.avg_speeds.append([t, avg_speed_i])
 
+    def finalize(self):
+        self.avg_of_avgs = np.nanmean(np.array([spd if spd else np.nan for spd in np.array(self.avg_speeds)[:,1]]))
+
     def plot_all(self):
         avgs = np.array(self.avg_speeds)
         plotting.plot_timeseries(avgs, "Average speed", "[m/s]")

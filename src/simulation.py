@@ -6,6 +6,17 @@ from road import Road
 from random import random, randint
 from metrics import Metrics
 from numpy.random import default_rng
+import scenario as scen
+
+def run_N_simulations(scenario_config, N, dur_secs, sim_config={}):
+    metrics = []
+    for i in range(N):
+        scenario_i = scen.Scenario(scenario_config)
+        print(f"Running simulation {i+1}...")
+        sim = Simulation(scenario_i, config=sim_config)
+        metric_i = sim.run(dur_secs*sim.fps)
+        metrics.append(metric_i)
+    return metrics
 
 class Simulation:    
     def __init__(self, scenario, config={}):
@@ -30,13 +41,10 @@ class Simulation:
         self.t = 0.0
         self.animate = True
         self.frame_count = 0    # Frame count keeping
+        self.fps = 60
         self.dt = 1/60          # Simulation time step
         self.traffic_signals = []
-
-    # def create_gen(self, config={}):
-    #     gen = VehicleGenerator(self, config)
-    #     self.generators.append(gen)
-    #     return gen
+        self.smart_vehicle_adoption = 0.5
 
     # def create_signal(self, roads, config={}):
     #     roads = [[self.roads[i] for i in road_group] for road_group in roads]
@@ -75,7 +83,7 @@ class Simulation:
             route = Route([self.scenario.map[r] for r in random_route])
 
             # Add a smart car or a normal car to the queue.
-            if random() < 0.5:
+            if random() < self.smart_vehicle_adoption:
                 self.traffic_manager.add_vehicle(source, SmartVehicle(route))
             else:
                 self.traffic_manager.add_vehicle(source, DumbVehicle(route))
@@ -94,5 +102,7 @@ class Simulation:
             metrics.measure(self.t, self.traffic_manager.vehicles)
 
             if self.animate: win.animation_step((self.traffic_manager.vehicles_on_road, self.t, self.frame_count))
+
+        metrics.finalize()
 
         return metrics
