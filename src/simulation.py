@@ -32,8 +32,8 @@ class Simulation:
         self.generator = default_rng()
 
         self.sources = scenario.sources
-        self.arrival_times = scenario.arrival_times
-        self.arrival_times = {source: self.generator.exponential(time) for source, time in self.arrival_times.items()}
+        self.ex_arrival_times = scenario.arrival_times # Expected arrival times
+        self.arrival_times = {source: self.generator.exponential(time) for source, time in self.ex_arrival_times.items()}
 
     def set_default_config(self):
         self.t = 0.0            # Time keeping
@@ -86,7 +86,7 @@ class Simulation:
                 self.traffic_manager.add_vehicle(source, DumbVehicle(route))
 
             # Draw arrival time for the next vehicle at this source
-            self.arrival_times[source] = self.generator.exponential(self.arrival_times[source])
+            self.arrival_times[source] = self.generator.exponential(self.ex_arrival_times[source])
 
     def run(self, duration, animate = True, steps_per_frame = 1):
         """Run the simulation. The duration is in seconds."""
