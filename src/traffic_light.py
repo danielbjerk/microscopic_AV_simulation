@@ -10,7 +10,6 @@ class TrafficLights:
     def __init__(self, roads):
         self.pos = road.end() 
         self.cycle_index = 0
-<<<<<<< main
         self.cycles_dict = {1:(True,False) , 2:((True,False),(False,True))} ## Er dette felles for alle trafikklys
         self.cycle = self.cycles_dict[len(roads)]
         self.maxtime = 60*5 #5 sek ved 60 fps :^)
@@ -20,22 +19,11 @@ class TrafficLights:
         return cycle_index % len(self.cycle)
 
     def get_time(): ## Får tiden fra simulation.
-=======
-        self.cycles = {1:(True,False) , 2:((True,False),(False,True))} ## Er dette felles for alle trafikklys
-        self.cycle = self.cycles[len(roads)]
-    def change_light(self):
-        if get_time() % self.maxtime <= 1e-6:
-            cycle_index += 1
-        return cycle_index % len(self.cycle)
-
-    def get_time():
->>>>>>> TrafficLights coordinates traffic lights
         return Simulation.t
 
     def update(self):
         change_light()
         return self.cycle[cycle_index]
-<<<<<<< main
 
 '''
     Vi kan finne ut hva maks bremselengde er fra en bil, gitt fart.
@@ -49,5 +37,3 @@ class TrafficLights:
     instrueres om å benytte en annen bremseregel. Dette låner seg kanskje godt til gult lys?
 
 '''
-=======
->>>>>>> TrafficLights coordinates traffic lights
