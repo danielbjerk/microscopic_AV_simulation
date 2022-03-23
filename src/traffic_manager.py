@@ -1,5 +1,3 @@
-from collections import deque
-
 class TrafficManager:
 
     def __init__(self, sources, starting_vehicles, map) -> None:
@@ -7,7 +5,9 @@ class TrafficManager:
         self.vehicles_on_road = {road: [] for road in map} # Dictionary mellom road og hvilke vehicles som er på den veien. (unødvendig?)
 
         self.map = map # En del av quick fixen "source_road" i update_traffic. Må fikses opp i. Kanksje er det en bedre løsning å ha mappet?
-        self.vehicle_buffers = {source: deque() for source in sources}
+        
+        # Vehicles are buffered before spawning
+        self.vehicle_buffers = {source: [] for source in sources}
         
         for v in starting_vehicles:
             self.vehicles_on_road[v.route.cur_road].append(v)
@@ -31,11 +31,9 @@ class TrafficManager:
         return in_front
 
     def add_vehicle(self, source, vehicle):
-        self.vehicle_buffers[source].append(vehicle)
-
-        # Diagnostikk. Skal fjernes.
-        if len(self.vehicle_buffers[source]) == 30:
-            print("Cars in queue at source", source, "exceeded 30.")
+        # Keep a maximum of one vehicle in the buffer.
+        if not self.vehicle_buffers[source]:
+            self.vehicle_buffers[source].append(vehicle)
 
     def remove_vehicle(self, vehicle):
         try:
@@ -68,7 +66,6 @@ class TrafficManager:
         return result
 
     def update_traffic(self, dt):
-
         for source, buffer in self.vehicle_buffers.items():
             if buffer:
                 vehicle = buffer[0]
@@ -77,7 +74,7 @@ class TrafficManager:
                 or self.vehicles_on_road[source_road][-1].x > vehicle.s0 + vehicle.l:
                     self.vehicles.append(vehicle)
                     self.vehicles_on_road[source_road].append(vehicle)
-                    buffer.popleft()
+                    buffer.pop()
         
         vehicle_results = [v.update(dt, self.vehicle_in_front(v)) for v in self.vehicles]
         results = [self.parse_vehicle_update_msg(msg) for msg in vehicle_results]
