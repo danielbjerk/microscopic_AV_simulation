@@ -5,7 +5,11 @@ class TrafficManager:
         self.vehicles_on_road = {road: [] for road in map}  # Dictionary mellom road og hvilke vehicles som er på den veien. (unødvendig?)
 
         self.map = map # En del av quick fixen "source_road" i update_traffic. Må fikses opp i. Kanksje er det en bedre løsning å ha mappet?
+        
         self.lights = lights
+        lights_on_road = {}
+        for l in lights:
+            lights_on_road[l.road] = l
         
         # Vehicles are buffered before spawning
         self.vehicle_buffers = {source: [] for source in sources}
@@ -80,7 +84,7 @@ class TrafficManager:
                     buffer.pop()
         
         light_statuses = [l.update(t) for l in self.lights]
-        vehicle_results = [v.update(dt, self.vehicle_in_front(v)) for v in self.vehicles]
+        vehicle_results = [v.update(dt, self.vehicle_in_front(v, lights_on_roads[v.route.cur_road])) for v in self.vehicles]
         results = [self.parse_vehicle_update_msg(msg) for msg in vehicle_results]
 
         # Do more? What other traffic parts must be updated at each time moment?
