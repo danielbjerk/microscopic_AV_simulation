@@ -28,4 +28,6 @@ for rate in adopt_rates:
 
 meta_metrics = np.array(meta_metrics)
 plt.plot(adopt_rates, meta_metrics)
+plt.xlabel("Smart vehicle adoption rate [%]")
+plt.ylabel("Average speed [m/s]")
 plt.show()

@@ -94,12 +94,17 @@ class Simulation:
             win = Window()
             win.start_animation()
 
-        metrics = Metrics() # Burde kanskje være klassevariabel i simulation? Kanskje ikke?
+        metrics_init = False
+        init_metrics_after_secs = 20
 
         for _ in range(duration*self.fps):
+            if self.t >= init_metrics_after_secs and not metrics_init:
+                metrics = Metrics() # Burde kanskje være klassevariabel i simulation? Kanskje ikke?
+                metrics_init = True
+            
             for _ in range(steps_per_frame):
                 self.update()
-                metrics.measure(self.t, self.traffic_manager.vehicles)
+                if metrics_init: metrics.measure(self.t, self.traffic_manager.vehicles)
 
             if self.animate:
                 quit = win.animation_step((self.traffic_manager.vehicles_on_road, self.t, self.frame_count))
