@@ -14,7 +14,7 @@ class Vehicle:
         self.link = False
         self.copy_next_v = False
 
-    def control_acceleration(self, car_infront):
+    def control_acceleration(self, car_infront, light):
         pass
 
     def idm(self, s_desired, delta_s):
@@ -44,8 +44,8 @@ class Vehicle:
     def change_color(self, car_infront):
         pass
     
-    def update(self, dt, car_infront=None):
-        self.control_acceleration(car_infront)
+    def update(self, dt, car_infront=None, light=None):
+        self.control_acceleration(car_infront, light)
         
         if self.smart:
             self.set_state()
@@ -84,7 +84,7 @@ class DumbVehicle(Vehicle):
         for key, attr in config.items():
             setattr(self, key, attr)
 
-    def control_acceleration(self, car_infront):
+    def control_acceleration(self, car_infront, light):
         if car_infront:
             delta_s = car_infront.x-self.x-car_infront.l
             delta_v = self.v-car_infront.v 
@@ -118,7 +118,7 @@ class SmartVehicle(Vehicle):
         for key, attr in config.items():
             setattr(self, key, attr)
 
-    def control_acceleration(self, car_infront):
+    def control_acceleration(self, car_infront, light):
         if car_infront==None:
             self.a = self.a_max*(1-(self.v/self.v_max)**self.delta)
             if self.link:

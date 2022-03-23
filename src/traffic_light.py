@@ -4,26 +4,29 @@ from simulation import Simulation
 from road import Road
 from simulation import Simulation
 
-class TrafficLights:
+class TrafficLight:
     light = {0:'Red', 1:'Green'}
 
-    def __init__(self, roads):
-        self.pos = road.end() 
+    def __init__(self, road):
+        self.road = road
+        self.pos = road.end 
         self.cycle_index = 0
-        self.cycles_dict = {1:(True,False) , 2:((True,False),(False,True))} ## Er dette felles for alle trafikklys
-        self.cycle = self.cycles_dict[len(roads)]
-        self.maxtime = 60*5 #5 sek ved 60 fps :^)
-    def change_light(self):
-        if get_time() % self.maxtime <= 1e-10:
-            cycle_index += 1
-        return cycle_index % len(self.cycle)
+        #self.cycles_dict = {1:(True,False) , 2:((True,False),(False,True))} ## Er dette felles for alle trafikklys
+        self.cycle = (True, False)#self.cycles_dict[len(road)]
+        self.maxtime = 10
+    
+    def change_light(self, t):
+        if t % self.maxtime <= 1e-10:
+            self.cycle_index += 1
+            self.cycle_index %= len(self.cycle)
 
     def get_time(): ## Får tiden fra simulation.
         return Simulation.t
 
-    def update(self):
-        change_light()
-        return self.cycle[cycle_index]
+    def update(self, t):
+        self.change_light(t)
+        print(self.cycle[self.cycle_index])
+        return self.cycle[self.cycle_index]
 
 '''
     Vi kan finne ut hva maks bremselengde er fra en bil, gitt fart.

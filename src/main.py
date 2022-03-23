@@ -8,7 +8,7 @@ random.seed(0)
 numpy.random.seed(0)
 
 # Create simulation
-scenario_path = "scenarios/straight.toml"
+scenario_path = "scenarios/straight_with_lights.toml"
 scenario_config = toml.load(scenario_path)
 scenario = Scenario(scenario_config)
 

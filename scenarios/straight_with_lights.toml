@@ -4,7 +4,7 @@ roads = [
     [[0, 0], [200, 0]]      # 1
     ]
 
-legal_routes = [[0], [1]]
+legal_routes = [[0, 1]]
 
 traffic_lights = [0]
 
