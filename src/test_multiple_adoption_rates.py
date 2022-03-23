@@ -18,7 +18,7 @@ for rate in adopt_rates:
     N = 40
     #metrics = simulation.run_N_simulations(scenario, N=100, dur_secs=20, sim_config={"animate" : True})  # dupliserte biler beholdes på tvers av sims
     metrics = simulation.run_N_simulations(scenario_config, N=N, dur_secs=60, 
-                                            sim_config={"animate" : False, "smart_vehicle_adoption" : rate})
+                                            animate=False, smart_vehicle_adoption=rate)
 
     its = np.array(range(N))
     avgs = np.array([m.avg_of_avgs for m in metrics])

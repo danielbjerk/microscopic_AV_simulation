@@ -7,13 +7,13 @@ from metrics import Metrics
 from numpy.random import default_rng
 import scenario as scen
 
-def run_N_simulations(scenario_config, N, dur_secs, sim_config={}):
+def run_N_simulations(scenario_config, N, dur_secs, **config):
     metrics = []
     for i in range(N):
         scenario_i = scen.Scenario(scenario_config)
         print(f"Running simulation {i+1}...")
-        sim = Simulation(scenario_i, config=sim_config)
-        metric_i = sim.run(dur_secs*sim.fps)
+        sim = Simulation(scenario_i, **config)
+        metric_i = sim.run(dur_secs)
         metrics.append(metric_i)
     return metrics
 
@@ -88,9 +88,9 @@ class Simulation:
             # Draw arrival time for the next vehicle at this source
             self.arrival_times[source] = self.generator.exponential(self.arrival_times[source])
 
-    def run(self, duration, animate = True, steps_per_frame = 1):
+    def run(self, duration, steps_per_frame = 1):
         """Run the simulation. The duration is in seconds."""
-        if animate:
+        if self.animate:
             win = Window()
             win.start_animation()
 
@@ -101,11 +101,11 @@ class Simulation:
                 self.update()
                 metrics.measure(self.t, self.traffic_manager.vehicles)
 
-            if animate:
+            if self.animate:
                 quit = win.animation_step((self.traffic_manager.vehicles_on_road, self.t, self.frame_count))
             
-            if quit:
-                break
+                if quit:
+                    break
 
         metrics.finalize()
 

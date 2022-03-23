@@ -7,4 +7,7 @@ roads = [
 legal_routes = [[0], [1]]
 
 # generation
+arrival_times = [5, 5]
+
+# generation
 stochastic = true
