@@ -1,14 +1,6 @@
 from random import random
 import numpy as np
 
-def idm(s_desired, delta_s, v, a_max, v_max, delta):
-        a_freeroad = a_max*(1-(v/v_max)**delta) 
-        a_interaction = -a_max*(s_desired/delta_s)**2
-        a = a_freeroad + a_interaction
-        return a
-
-
-
 class Vehicle:
     def __init__(self, route):        
         self.route = route
@@ -19,32 +11,52 @@ class Vehicle:
         self.v = self.v_max
         self.a = 0
 
+        self.link = False
+        self.copy_next_v = False
+
     def control_acceleration(self, car_infront):
         pass
 
-    def update_physics(self, dt):
-        if self.v + self.a*dt < 0:
-            self.x -= (1/2)*(self.v**2)/self.a
-            self.v = 0
-        else:
-            self.v += self.a*dt
-            self.x += self.v*dt + self.a*(dt**2)/2
+    def idm(self, s_desired, delta_s):
+        a_freeroad = self.a_max*(1-(self.v/self.v_max)**self.delta) 
+        a_interaction = -self.a_max*(s_desired/delta_s)**2
+        return a_freeroad + a_interaction
 
-    def change_color(self):
+    def update_physics(self, dt, car_infront):
+        if self.link:
+            self.v = car_infront.v
+            self.x += self.v*dt + self.a*(dt**2)/2      
+            
+        else:
+            if self.copy_next_v:
+                self.v = car_infront.v
+                self.x += self.v*dt + self.a*(dt**2)/2
+                self.copy_next_v = False
+            
+            elif self.v + self.a*dt < 0:
+                self.x -= (1/2)*(self.v**2)/self.a
+                self.v = 0
+                
+            else:
+                self.v += self.a*dt
+                self.x += self.v*dt + self.a*(dt**2)/2
+
+    def change_color(self, car_infront):
         pass
     
     def update(self, dt, car_infront=None):
         self.control_acceleration(car_infront)
         
-        self.update_physics(dt)
+        if self.smart:
+            self.set_state()
+
+        self.update_physics(dt,car_infront)
         
-        self.change_color()
+        self.change_color(car_infront)
 
         # Common for all 
         if self.x >= self.route.cur_road.length:
             return ("traversed_road", self)
-
-
 
 class DumbVehicle(Vehicle):
     def __init__(self, route, config={}):
@@ -53,7 +65,10 @@ class DumbVehicle(Vehicle):
         #Parameters for idm: 
         self.T = 2              # Reaction time of vehicle i's driver. Set to 0 when self.smart==True.
         self.delta = 4          # smoothness of the acceleration
-        self.s0 = 4             # min desired distance between vehicle i and i-1 
+        self.s0 = 8             # min desired distance between vehicle i and i-1. 
+        #!!Note: s0 needs to be bigger than car_infront.l, or else the desired distance is inside the vehicle in front.
+        #Also: Want to change self.s0 to 2*car_infront.l for dumb vehicle, and 1.5*car_infront.l for smart vehicle.
+
 
         self.a_max = 1.44       # Max accel of vehicle i    # 4s
         self.b_max = 4.61       # comfortable deceleration of vehicle i
@@ -62,7 +77,7 @@ class DumbVehicle(Vehicle):
 
         self.smart = False
 
-        self.v_max = 7  # tmp
+        self.v_max = 16.6
 
         self.color = (0, 0, 255)
 
@@ -74,20 +89,20 @@ class DumbVehicle(Vehicle):
             delta_s = car_infront.x-self.x-car_infront.l
             delta_v = self.v-car_infront.v 
             s_desired = self.s0+self.v*self.T+self.v*(delta_v)/(2*np.sqrt(self.a_max*self.b_max))
-            self.a = idm(s_desired, delta_s, self.v, self.a_max, self.v_max, self.delta)
+            self.a = self.idm(s_desired,delta_s)
         else:
             self.a = self.a_max*(1-(self.v/self.v_max)**self.delta) 
 
-
-
+    
+    
 class SmartVehicle(Vehicle):
     def __init__(self, route, config={}):
         super().__init__(route)
 
         #Parameters for idm: 
-        self.T = 2             # Reaction time of vehicle i's driver. Set to 0 when self.smart==True.
+        self.T = 0             # Reaction time of vehicle i's driver. Set to 0 when self.smart==True.
         self.delta = 4          # smoothness of the acceleration
-        self.s0 = 4             # min desired distance between vehicle i and i-1 
+        self.s0 = 6            # min desired distance between vehicle i and i-1 
         self.link_window = 4
 
         self.a_max = 1.44       # Max accel of vehicle i    # 4s
@@ -104,55 +119,54 @@ class SmartVehicle(Vehicle):
             setattr(self, key, attr)
 
     def control_acceleration(self, car_infront):
-        # Change state, may be moved to own state-machine function
-        if car_infront:
-            delta_s = car_infront.x - self.x - car_infront.l
-            delta_v = self.v - car_infront.v
-            if car_infront.smart:
-                s_desired = self.s0 + self.link_window
-            else:
-                s_desired = self.s0 + self.v*self.T + self.v*(delta_v)/(2*np.sqrt(self.a_max*self.b_max))
-
-            if -0.2*self.link_window < delta_s - s_desired < 1.2*self.link_window and car_infront.smart:
-                self.state = "linked"
-            elif delta_s <= self.s0:
-                self.state = "too_close_infront"
-            else:
-                self.state = "far_from_infront"
-
-        elif not car_infront:
-            self.state = "alone_on_road"
+        if car_infront==None:
+            self.a = self.a_max*(1-(self.v/self.v_max)**self.delta)
+            if self.link:
+                self.link=False #Need this incase vehicle is linked to car_infront, but then car_infront leaves road.
+            return
         
+        delta_s = car_infront.x-self.x-car_infront.l
+        delta_v = self.v-car_infront.v 
+        s_desired = self.s0+self.v*(delta_v)/(2*np.sqrt(self.a_max*self.b_max))
+        
+        if self.link:
+            self.a = car_infront.a         
+        elif self.smart and car_infront.smart: 
+            s_desired = self.s0 + self.v*(delta_v)/(2*np.sqrt(self.a_max*self.b_max))
+    
+            if delta_s-s_desired <= 0.2:
+                if abs(delta_v)<0.1:
+                    self.link = True
+                    self.a=car_infront.a
+                    self.state = "linked"
+                else:
+                    self.a = self.idm(s_desired,delta_s)
+            else:    
+                if car_infront.a <= 0:
+                    self.a = self.idm(s_desired,delta_s)
+                else:
+                    if abs(delta_v)<0.1:
+                        self.copy_next_v = True
+                        self.a=car_infront.a
+                    else:
+                        self.a = self.idm(s_desired,delta_s)
         else:
-            self.state = "undefined"
-        
+            self.a = self.idm(s_desired+car_infront.l,delta_s)
+    
+    def set_state(self):
+        if self.link:
+            self.state = "linked"
+        elif self.copy_next_v:
+            self.state = "copy_next_v"
+        elif self.smart:
+            self.state = "init"
 
-        # Take action based on state
-        if self.state == "alone_on_road":
-            new_a = self.a_max*(1-(self.v/self.v_max)**self.delta)     # Freeroad-acceleration
-
-        elif self.state == "too_close_infront" or \
-        self.state == "far_from_infront":
-            new_a = idm(s_desired, delta_s, self.v, self.a_max, self.v_max, self.delta)
-
-        elif self.state == "linked":
-            # Hacky løsning
-            # Trenger egen tilstand "linking" som bruker idm frem til hastigheter er innenfor terskel 
-            K_p = -self.b_max/2
-            new_a = car_infront.a + K_p*delta_v
-
-        else:
-            new_a = self.a
-        
-        self.a = new_a
-        return
-
-    def change_color(self):
+    def change_color(self,car_infront):
         if self.state == "linked":
-            self.color = (120, 120, 120)
-        elif self.state == "too_close_infront" or \
-        self.state == "far_from_infront" or \
-        self.state == "alone_on_road":
-            self.color = (155, 0, 155)
+            self.color = (0, 255, 0)
+        elif self.state == "copy_next_v":
+            self.color = (255, 255, 0)
+        elif car_infront:
+            self.color = (255, 0, 0)
         else:
-            self.color = (255, 255, 255)
+            self.color = (255,255,255)
