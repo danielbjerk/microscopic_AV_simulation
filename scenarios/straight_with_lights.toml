@@ -1,0 +1,15 @@
+# map
+roads = [
+    [[-200, 0], [0, 0]],    # 0
+    [[0, 0], [200, 0]]      # 1
+    ]
+
+legal_routes = [[0], [1]]
+
+traffic_lights = [0]
+
+# generation
+arrival_times = [5, 5]
+
+# generation
+stochastic = true
