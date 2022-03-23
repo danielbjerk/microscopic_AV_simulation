@@ -1,4 +1,5 @@
 from road import Road
+from traffic_light import TrafficLight
 
 class Scenario:
     def __init__(self, config=None):
@@ -12,7 +13,9 @@ class Scenario:
         # TODO: Refactor. Jeg bruker bare indekser for veier i stedet for Roads. Er det dumt? Vi har jo map.
         # routes er en dictionary fra source til liste med ruter. Rutene er også bare en liste med vei-indekser.
         self.sources = list(set([r[0] for r in config["legal_routes"]]))
-        self.routes = {s: [r for r in config["legal_routes"] if r[0]==s] for s in self.sources}        
+        self.routes = {s: [r for r in config["legal_routes"] if r[0]==s] for s in self.sources}
+
+        self.lights = [TrafficLight(map[r_i]) for r_i in config["traffic_lights"]]
 
         # Dictionary: {source: rate}. Source is int and rate is float.
         self.arrival_times = {source: time for source, time in zip(self.sources, config["arrival_times"])}

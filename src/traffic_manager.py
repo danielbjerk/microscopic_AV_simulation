@@ -1,10 +1,11 @@
 class TrafficManager:
 
-    def __init__(self, sources, starting_vehicles, map) -> None:
-        self.vehicles = starting_vehicles# List(Vehicle)# biler som skal følge ruten som inneholder veier.
-        self.vehicles_on_road = {road: [] for road in map} # Dictionary mellom road og hvilke vehicles som er på den veien. (unødvendig?)
+    def __init__(self, sources, starting_vehicles, map, lights) -> None:
+        self.vehicles = starting_vehicles                   # biler som skal følge ruten som inneholder veier.
+        self.vehicles_on_road = {road: [] for road in map}  # Dictionary mellom road og hvilke vehicles som er på den veien. (unødvendig?)
 
         self.map = map # En del av quick fixen "source_road" i update_traffic. Må fikses opp i. Kanksje er det en bedre løsning å ha mappet?
+        self.lights = lights
         
         # Vehicles are buffered before spawning
         self.vehicle_buffers = {source: [] for source in sources}
@@ -65,7 +66,7 @@ class TrafficManager:
             pass
         return result
 
-    def update_traffic(self, dt):
+    def update_traffic(self, dt, t):
         for source, buffer in self.vehicle_buffers.items():
             if buffer:
                 vehicle = buffer[0]
@@ -78,6 +79,7 @@ class TrafficManager:
                     self.vehicles_on_road[source_road].append(vehicle)
                     buffer.pop()
         
+        light_statuses = [l.update(t) for l in self.lights]
         vehicle_results = [v.update(dt, self.vehicle_in_front(v)) for v in self.vehicles]
         results = [self.parse_vehicle_update_msg(msg) for msg in vehicle_results]
 

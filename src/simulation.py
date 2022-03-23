@@ -27,7 +27,7 @@ class Simulation:
             setattr(self, attr, val)
         
         self.scenario = scenario
-        self.traffic_manager = TrafficManager(sources=scenario.sources, starting_vehicles=scenario.starting_vehicles, map=scenario.map)
+        self.traffic_manager = TrafficManager(sources=scenario.sources, starting_vehicles=scenario.starting_vehicles, map=scenario.map, lights=scenario.lights)
         
         self.generator = default_rng()
 
@@ -65,7 +65,7 @@ class Simulation:
         #scenario_updates = self.scenario.get_updates(t_old, t_new)
         #scenario_results = self.handle_scenario_updates(scenario_updates)   # Gjerne update-meldinger
         
-        self.traffic_manager.update_traffic(self.dt)
+        self.traffic_manager.update_traffic(self.dt, self.t)
 
         for source in self.sources:
             self.generate_vehicle(source, self.scenario.routes[source])
