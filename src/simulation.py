@@ -102,7 +102,11 @@ class Simulation:
                 metrics.measure(self.t, self.traffic_manager.vehicles)
 
             if self.animate:
-                quit = win.animation_step((self.traffic_manager.vehicles_on_road, self.t, self.frame_count))
+                quit = win.animation_step(
+                    (self.traffic_manager.vehicles_on_road,
+                    self.traffic_manager.lights,
+                    self.t,
+                    self.frame_count))
             
                 if quit:
                     break
