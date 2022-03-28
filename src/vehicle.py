@@ -26,17 +26,26 @@ class Vehicle:
             self.normal_acceleration(car_infront)
             return
         if in_stop_zone and light.green():
-            self.run_this_light = True
+            if self.v >= 10: self.run_this_light = True
             self.normal_acceleration(car_infront)
             return
         if in_stop_zone and not light.green() and self.run_this_light:
             self.normal_acceleration(car_infront)
             return
+        """Fungerer ikke, er tiltenkt for å stoppe casen hvor biler kommer veeeldig nærme hverandre ved rødt lys
+        if car_infront:
+            if in_stop_zone and not light.green() and not car_infront.run_this_light and car_infront.route.cur_road == self.route.cur_road:
+                self.normal_acceleration(car_infront)
+                return
+        """
         self.damping()
         return
 
     def damping(self):
-        self.a = -self.b_max
+        # Denne burde egentlig drive avstand fra trafikklys mot null.
+        # K_p = 2.4
+        # K_i = 1.44
+        self.a = -self.b_max #- K_p*self.v - K_i*(self.route.cur_road.length - self.x)
 
     def normal_acceleration(self, car_infront):
         pass
@@ -47,7 +56,7 @@ class Vehicle:
         return a_freeroad + a_interaction
 
     def update_physics(self, dt, car_infront):
-        if self.link:
+        if self.link and car_infront:
             self.v = car_infront.v
             self.x += self.v*dt + self.a*(dt**2)/2      
             
