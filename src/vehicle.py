@@ -14,7 +14,31 @@ class Vehicle:
         self.link = False
         self.copy_next_v = False
 
+        self.run_this_light = False
+
     def control_acceleration(self, car_infront, light):
+        if not light:
+            self.run_this_light = False
+            self.normal_acceleration(car_infront)
+            return
+        in_stop_zone = (self.route.cur_road.length - self.x <= light.stop_zone)
+        if not in_stop_zone:
+            self.normal_acceleration(car_infront)
+            return
+        if in_stop_zone and light.green():
+            self.run_this_light = True
+            self.normal_acceleration(car_infront)
+            return
+        if in_stop_zone and not light.green() and self.run_this_light:
+            self.normal_acceleration(car_infront)
+            return
+        self.damping()
+        return
+
+    def damping(self):
+        self.a = -self.b_max
+
+    def normal_acceleration(self, car_infront):
         pass
 
     def idm(self, s_desired, delta_s):
@@ -58,6 +82,8 @@ class Vehicle:
         if self.x >= self.route.cur_road.length:
             return ("traversed_road", self)
 
+
+
 class DumbVehicle(Vehicle):
     def __init__(self, route, config={}):
         super().__init__(route)
@@ -84,7 +110,7 @@ class DumbVehicle(Vehicle):
         for key, attr in config.items():
             setattr(self, key, attr)
 
-    def control_acceleration(self, car_infront, light):
+    def normal_acceleration(self, car_infront):
         if car_infront:
             delta_s = car_infront.x-self.x-car_infront.l
             delta_v = self.v-car_infront.v 
@@ -118,7 +144,7 @@ class SmartVehicle(Vehicle):
         for key, attr in config.items():
             setattr(self, key, attr)
 
-    def control_acceleration(self, car_infront, light):
+    def normal_acceleration(self, car_infront):
         if car_infront==None:
             self.a = self.a_max*(1-(self.v/self.v_max)**self.delta)
             if self.link:

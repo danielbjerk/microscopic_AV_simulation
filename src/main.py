@@ -16,7 +16,7 @@ sim = Simulation(scenario, animate = True)
 
 # Start simulation
 
-metrics = sim.run(20)
+metrics = sim.run(60)
 
 
 # Post-processing/plotting/storing of important results
