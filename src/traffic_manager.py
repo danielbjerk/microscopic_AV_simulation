@@ -31,7 +31,15 @@ class TrafficManager:
         cur_index = all_vehicles.index(vehicle)
         
         if not cur_index:
-            in_front =  None
+            # EKKELT!!!
+            next_road = vehicle.route.next_on_route()
+            if next_road:
+                if self.vehicles_on_road[next_road]:
+                    in_front = self.vehicles_on_road[next_road][-1]
+                else:
+                    in_front = None
+            else: 
+                in_front =  None
         else:
             in_front = all_vehicles[cur_index - 1]
         return in_front

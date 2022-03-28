@@ -15,3 +15,9 @@ class Route:
         else:
             self.cur_road = self.roads[self.cur_index]
             return self.cur_road
+
+    def next_on_route(self) -> Road:
+        if self.cur_index + 1 >= len(self.roads):
+            return None
+        else:
+            return self.roads[self.cur_index + 1]
