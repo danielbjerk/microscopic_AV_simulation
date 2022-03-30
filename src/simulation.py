@@ -2,9 +2,8 @@ from traffic_manager import TrafficManager
 from trafficlib import *
 from vehicle import DumbVehicle, SmartVehicle
 from route import Route
-from random import random, randint, seed
 from metrics import Metrics
-from numpy.random import default_rng
+from numpy.random import default_rng, uniform, randint
 import scenario as scen
 
 def run_N_simulations(scenario_config, N, dur_secs, **config):
@@ -29,8 +28,7 @@ class Simulation:
         self.scenario = scenario
         self.traffic_manager = TrafficManager(sources=scenario.sources, starting_vehicles=scenario.starting_vehicles, map=scenario.map, lights=scenario.lights)
         
-        self.generator = default_rng(54321)
-        seed()
+        self.generator = default_rng()
 
         self.sources = scenario.sources
         self.ex_arrival_times = scenario.arrival_times # Expected arrival times
@@ -77,11 +75,11 @@ class Simulation:
     def generate_vehicle(self, source, routes):
         if self.t >= self.arrival_times[source]:
             # Generate new vehicle at source
-            random_route = routes[randint(0, len(routes)-1)]
+            random_route = routes[randint(0, len(routes))]
             route = Route([self.scenario.map[r] for r in random_route])
 
             # Add a smart car or a normal car to the queue.
-            if random() < self.smart_vehicle_adoption:
+            if uniform() < self.smart_vehicle_adoption:
                 self.traffic_manager.add_vehicle(source, SmartVehicle(route))
             else:
                 vehicle = DumbVehicle(route)
