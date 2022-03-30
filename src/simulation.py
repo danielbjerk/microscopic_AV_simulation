@@ -2,7 +2,7 @@ from traffic_manager import TrafficManager
 from trafficlib import *
 from vehicle import DumbVehicle, SmartVehicle
 from route import Route
-from random import random, randint
+from random import random, randint, seed
 from metrics import Metrics
 from numpy.random import default_rng
 import scenario as scen
@@ -29,7 +29,8 @@ class Simulation:
         self.scenario = scenario
         self.traffic_manager = TrafficManager(sources=scenario.sources, starting_vehicles=scenario.starting_vehicles, map=scenario.map, lights=scenario.lights)
         
-        self.generator = default_rng()
+        self.generator = default_rng(54321)
+        seed(0)
 
         self.sources = scenario.sources
         self.ex_arrival_times = scenario.arrival_times # Expected arrival times
@@ -86,7 +87,8 @@ class Simulation:
                 self.traffic_manager.add_vehicle(source, DumbVehicle(route))
 
             # Draw arrival time for the next vehicle at this source
-            self.arrival_times[source] = self.generator.exponential(self.ex_arrival_times[source])
+            self.arrival_times[source] = self.t + self.generator.exponential(self.ex_arrival_times[source])
+            print(self.arrival_times[source])
 
     def run(self, duration, steps_per_frame = 1):
         """Run the simulation. The duration is in seconds."""
