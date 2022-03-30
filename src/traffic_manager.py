@@ -14,7 +14,12 @@ class TrafficManager:
 
         # Vehicles are buffered before spawning
         self.vehicle_buffers = {source: [] for source in sources}
-        
+
+        # Number of vehicles removed.
+        self.deleted_vehicles = 0
+        # Number of vehicles through a light
+        self.through_light = 0
+
         for v in starting_vehicles:
             self.vehicles_on_road[v.route.cur_road].append(v)
 
@@ -51,6 +56,7 @@ class TrafficManager:
 
     def remove_vehicle(self, vehicle):
         try:
+            self.deleted_vehicles += 1
             self.vehicles.remove(vehicle)
             self.vehicles_on_road[vehicle.route.cur_road].remove(vehicle)
             return ("vehicle_removed", vehicle)
@@ -67,6 +73,8 @@ class TrafficManager:
             self.vehicles_on_road[old_road].remove(vehicle)
             self.vehicles_on_road[new_road].append(vehicle)
             vehicle.x = 0
+            if self.lights_on_road[old_road]:
+                self.through_light += 1
             return ("vehicle_iterated_route", vehicle)
 
     def parse_vehicle_update_msg(self, update_msg):        
