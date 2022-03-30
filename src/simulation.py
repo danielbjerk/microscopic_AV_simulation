@@ -84,7 +84,10 @@ class Simulation:
             if random() < self.smart_vehicle_adoption:
                 self.traffic_manager.add_vehicle(source, SmartVehicle(route))
             else:
-                self.traffic_manager.add_vehicle(source, DumbVehicle(route))
+                vehicle = DumbVehicle(route)
+                # Stocastic reaction time
+                vehicle.T = max(0, vehicle.T + self.generator.normal(0, 0.0695))
+                self.traffic_manager.add_vehicle(source, vehicle)
 
             # Draw arrival time for the next vehicle at this source
             self.arrival_times[source] = self.t + self.generator.exponential(self.ex_arrival_times[source])
