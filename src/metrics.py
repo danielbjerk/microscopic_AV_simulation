@@ -1,6 +1,5 @@
 import numpy as np
 import plotting
-import pandas as pd
 
 
 class Metrics:

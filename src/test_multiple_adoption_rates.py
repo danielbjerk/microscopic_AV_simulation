@@ -1,4 +1,3 @@
-from scenario import Scenario
 import simulation
 import toml
 
@@ -10,23 +9,24 @@ import matplotlib.pyplot as plt
 # Create simulation
 scenario_path = "scenarios/straight_with_lights.toml"
 scenario_config = toml.load(scenario_path)
-#scenario = Scenario(scenario_config)
+
 dF  = pd.DataFrame()
-adopt_rates = np.linspace(0, 1, 51)
 meta_metrics = []
+metric_dict = {}    # Skal bli dataframe
+
+# Hyper-parameters
+adopt_rates = np.linspace(0, 1, 21)
+num_sims_pr_scen = 100
+dur_single_sim_secs = 80
 
 tic = time()
-# Skal bli dataframe
-metric_dict = {}
 for rate in adopt_rates:
     print(f"---------Running simulation for {rate} smart vehicle adoption rate---------")
 
-    N = 100
-    #metrics = simulation.run_N_simulations(scenario, N=100, dur_secs=20, sim_config={"animate" : True})  # dupliserte biler beholdes på tvers av sims
-    metrics = simulation.run_N_simulations(scenario_config, N=N, dur_secs=60, 
+    metrics = simulation.run_N_simulations(scenario_config, N=num_sims_pr_scen, dur_secs=dur_single_sim_secs, 
                                             animate=False, smart_vehicle_adoption=rate)
 
-    its = np.array(range(N))
+    its = np.array(range(num_sims_pr_scen))
     avgs = np.array([m.avg_of_avgs for m in metrics])
     meta_metrics.append(np.nanmean(avgs))
     

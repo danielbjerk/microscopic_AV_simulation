@@ -1,9 +1,3 @@
-from vehicle import Vehicle
-from simulation import Simulation
-
-from road import Road
-from simulation import Simulation
-
 class TrafficLight:
     light = {0:'Red', 1:'Green'}
 

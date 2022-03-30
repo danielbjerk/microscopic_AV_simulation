@@ -26,7 +26,10 @@ class Simulation:
             setattr(self, attr, val)
         
         self.scenario = scenario
-        self.traffic_manager = TrafficManager(sources=scenario.sources, starting_vehicles=scenario.starting_vehicles, map=scenario.map, lights=scenario.lights)
+        self.traffic_manager = TrafficManager(sources=scenario.sources, 
+                                            starting_vehicles=scenario.starting_vehicles, 
+                                            map=scenario.map, 
+                                            lights=scenario.lights)
         
         self.generator = default_rng()
 
@@ -42,35 +45,16 @@ class Simulation:
         self.traffic_signals = []
         self.smart_vehicle_adoption = 0.5
 
-    # def create_signal(self, roads, config={}):
-    #     roads = [[self.roads[i] for i in road_group] for road_group in roads]
-    #     sig = TrafficSignal(roads, config)
-    #     self.traffic_signals.append(sig)
-    #     return sig
-    
-
-
-    def handle_scenario_updates(scenario_updates):
-        # Parse each update, must be handled individually dep. message, update states accordingly.
-        pass
 
     def update(self):
-        # t_old = self.t
         self.t += self.dt
-        # t_new = self.t
         self.frame_count += 1
-
-        # Implementer senere
-        #scenario_updates = self.scenario.get_updates(t_old, t_new)
-        #scenario_results = self.handle_scenario_updates(scenario_updates)   # Gjerne update-meldinger
         
         self.traffic_manager.update_traffic(self.dt, self.t)
 
         for source in self.sources:
             self.generate_vehicle(source, self.scenario.routes[source])
 
-        # for signal in self.traffic_signals:
-        #     signal.update(self)
 
     def generate_vehicle(self, source, routes):
         if self.t >= self.arrival_times[source]:
