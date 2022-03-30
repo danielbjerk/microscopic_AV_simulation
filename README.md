@@ -10,3 +10,4 @@
 - scipy
 - pygame
 - Toml
+- Pandas
