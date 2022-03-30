@@ -5,7 +5,6 @@ import toml
 from time import time
 import numpy as np
 import pandas as pd
-import seaborn as sns
 import matplotlib.pyplot as plt
 
 # Create simulation

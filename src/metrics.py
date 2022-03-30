@@ -34,11 +34,11 @@ class Metrics:
         self.metric_dict['velocities'] = np.array(self.avg_of_avgs)
         self.metric_dict['idle_time'] = np.array(self.idle_list).sum()
         
-        self.deleted_list.append(self.deleted_num)
-        self.metric_dict['deleted'] =  np.array(self.deleted_list)
+        #self.deleted_list.append(self.deleted_num)
+        self.metric_dict['deleted'] =  self.deleted_num#np.array(self.deleted_list)
 
-        self.through_light_list.append(self.through_light_num)
-        self.metric_dict['through_light'] = np.array(self.through_light_list)
+        #self.through_light_list.append(self.through_light_num)
+        self.metric_dict['through_light'] = self.through_light_num#np.array(self.through_light_list)
 
     def plot_all(self):
         avgs = np.array(self.avg_speeds)
