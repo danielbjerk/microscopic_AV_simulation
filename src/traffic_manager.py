@@ -1,11 +1,17 @@
 class TrafficManager:
 
-    def __init__(self, sources, starting_vehicles, map) -> None:
-        self.vehicles = starting_vehicles# List(Vehicle)# biler som skal følge ruten som inneholder veier.
-        self.vehicles_on_road = {road: [] for road in map} # Dictionary mellom road og hvilke vehicles som er på den veien. (unødvendig?)
+    def __init__(self, sources, starting_vehicles, map, lights) -> None:
+        self.vehicles = starting_vehicles                   # biler som skal følge ruten som inneholder veier.
+        self.vehicles_on_road = {road: [] for road in map}  # Dictionary mellom road og hvilke vehicles som er på den veien. (unødvendig?)
 
         self.map = map # En del av quick fixen "source_road" i update_traffic. Må fikses opp i. Kanksje er det en bedre løsning å ha mappet?
         
+        self.lights = lights
+        lights_on_road = {road: None for road in map}
+        for l in lights:
+            lights_on_road[l.road] = l
+        self.lights_on_road = lights_on_road
+
         # Vehicles are buffered before spawning
         self.vehicle_buffers = {source: [] for source in sources}
         
@@ -25,7 +31,15 @@ class TrafficManager:
         cur_index = all_vehicles.index(vehicle)
         
         if not cur_index:
-            in_front =  None
+            # EKKELT!!!
+            next_road = vehicle.route.next_on_route()
+            if next_road:
+                if self.vehicles_on_road[next_road]:
+                    in_front = self.vehicles_on_road[next_road][-1]
+                else:
+                    in_front = None
+            else: 
+                in_front =  None
         else:
             in_front = all_vehicles[cur_index - 1]
         return in_front
@@ -65,7 +79,7 @@ class TrafficManager:
             pass
         return result
 
-    def update_traffic(self, dt):
+    def update_traffic(self, dt, t):
         for source, buffer in self.vehicle_buffers.items():
             if buffer:
                 vehicle = buffer[0]
@@ -78,7 +92,8 @@ class TrafficManager:
                     self.vehicles_on_road[source_road].append(vehicle)
                     buffer.pop()
         
-        vehicle_results = [v.update(dt, self.vehicle_in_front(v)) for v in self.vehicles]
+        light_statuses = [l.update(t) for l in self.lights]
+        vehicle_results = [v.update(dt, self.vehicle_in_front(v), self.lights_on_road[v.route.cur_road]) for v in self.vehicles]
         results = [self.parse_vehicle_update_msg(msg) for msg in vehicle_results]
 
         # Do more? What other traffic parts must be updated at each time moment?

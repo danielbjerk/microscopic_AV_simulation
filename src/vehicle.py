@@ -6,7 +6,11 @@ class Vehicle:
         self.route = route
 
         self.l = 4              # length of vehicle i
+
+        self.a_max = 1.44       # Max accel of vehicle i    # 4s
+        self.b_max = 4.61       # comfortable deceleration of vehicle i
         self.v_max = 16.6       # max desired speed of vehicle i. Set this as road.v_limit?
+        
         self.x = 0
         self.v = self.v_max
         self.a = 0
@@ -14,7 +18,53 @@ class Vehicle:
         self.link = False
         self.copy_next_v = False
 
-    def control_acceleration(self, car_infront):
+        self.run_this_light = False
+
+    def control_acceleration(self, car_infront, light):
+        if not light:
+            self.run_this_light = False
+            self.normal_acceleration(car_infront)
+            return
+        in_stop_zone = (self.route.cur_road.length - self.x <= light.stop_zone)
+        if not in_stop_zone:
+            self.normal_acceleration(car_infront)
+            return
+        if in_stop_zone and light.green():
+            if self.v >= 10: self.run_this_light = True
+            self.normal_acceleration(car_infront)
+            return
+        if in_stop_zone and not light.green() and self.run_this_light:
+            self.normal_acceleration(car_infront)
+            return
+        """Fungerer ikke, er tiltenkt for å stoppe casen hvor biler kommer veeeldig nærme hverandre ved rødt lys
+        if car_infront:
+            if in_stop_zone and not light.green() and not car_infront.run_this_light and car_infront.route.cur_road == self.route.cur_road:
+                self.normal_acceleration(car_infront)
+                return
+        """
+        if car_infront and not light.green() and in_stop_zone:
+            if car_infront.run_this_light and car_infront.route.cur_road == self.route.cur_road:
+                self.damping()
+                return
+            if car_infront.route.cur_road == self.route.cur_road:
+                self.normal_acceleration(car_infront)
+                return
+
+        if in_stop_zone and not light.green() and not self.run_this_light:
+            self.damping()
+            return
+        self.normal_acceleration(car_infront)
+        return
+
+    def damping(self):
+        # Denne burde egentlig drive avstand fra trafikklys mot null.
+        x_e = self.x - (self.route.cur_road.length - 5)
+        v_e = self.v
+        
+        # Tune dette
+        self.a = max(-(1*x_e + 1.1*2*v_e), -self.b_max)
+
+    def normal_acceleration(self, car_infront):
         pass
 
     def idm(self, s_desired, delta_s):
@@ -23,7 +73,7 @@ class Vehicle:
         return a_freeroad + a_interaction
 
     def update_physics(self, dt, car_infront):
-        if self.link:
+        if self.link and car_infront:
             self.v = car_infront.v
             self.x += self.v*dt + self.a*(dt**2)/2      
             
@@ -44,8 +94,8 @@ class Vehicle:
     def change_color(self, car_infront):
         pass
     
-    def update(self, dt, car_infront=None):
-        self.control_acceleration(car_infront)
+    def update(self, dt, car_infront=None, light=None):
+        self.control_acceleration(car_infront, light)
         
         if self.smart:
             self.set_state()
@@ -58,6 +108,8 @@ class Vehicle:
         if self.x >= self.route.cur_road.length:
             return ("traversed_road", self)
 
+
+
 class DumbVehicle(Vehicle):
     def __init__(self, route, config={}):
         super().__init__(route)
@@ -69,22 +121,14 @@ class DumbVehicle(Vehicle):
         #!!Note: s0 needs to be bigger than car_infront.l, or else the desired distance is inside the vehicle in front.
         #Also: Want to change self.s0 to 2*car_infront.l for dumb vehicle, and 1.5*car_infront.l for smart vehicle.
 
-
-        self.a_max = 1.44       # Max accel of vehicle i    # 4s
-        self.b_max = 4.61       # comfortable deceleration of vehicle i
-
-        self.stopped = False
-
         self.smart = False
-
-        self.v_max = 16.6
 
         self.color = (0, 0, 255)
 
         for key, attr in config.items():
             setattr(self, key, attr)
 
-    def control_acceleration(self, car_infront):
+    def normal_acceleration(self, car_infront):
         if car_infront:
             delta_s = car_infront.x-self.x-car_infront.l
             delta_v = self.v-car_infront.v 
@@ -105,11 +149,6 @@ class SmartVehicle(Vehicle):
         self.s0 = 6            # min desired distance between vehicle i and i-1 
         self.link_window = 4
 
-        self.a_max = 1.44       # Max accel of vehicle i    # 4s
-        self.b_max = 4.61       # comfortable deceleration of vehicle i
-
-        self.stopped = False
-
         self.smart = True
         self.state = "init"
 
@@ -118,7 +157,7 @@ class SmartVehicle(Vehicle):
         for key, attr in config.items():
             setattr(self, key, attr)
 
-    def control_acceleration(self, car_infront):
+    def normal_acceleration(self, car_infront):
         if car_infront==None:
             self.a = self.a_max*(1-(self.v/self.v_max)**self.delta)
             if self.link:

@@ -281,19 +281,29 @@ class Window:
 
     def draw_signals(self, all_signals):
         for signal in all_signals:
-            for i in range(len(signal.roads)):
-                color = (0, 255, 0) if signal.current_cycle[i] else (255, 0, 0)
-                for road in signal.roads[i]:
-                    a = 0
-                    position = (
-                        (1-a)*road.end[0] + a*road.start[0],        
-                        (1-a)*road.end[1] + a*road.start[1]
-                    )
-                    self.rotated_box(
-                        position,
-                        (1, 3),
-                        cos=road.angle_cos, sin=road.angle_sin,
-                        color=color)
+            color = (0, 255, 0) if signal.green() else (255, 0, 0)
+            road = signal.road
+            a = 0
+            position = (
+                (1-a)*road.end[0] + a*road.start[0],        
+                (1-a)*road.end[1] + a*road.start[1]
+            )
+            self.rotated_box(
+                position,
+                (1, 3),
+                cos=road.angle_cos, sin=road.angle_sin,
+                color=color)
+            # Draw stop-zone
+            a = signal.stop_zone/road.length
+            position_stop_zone = (
+                (1-a)*road.end[0] + a*road.start[0],        
+                (1-a)*road.end[1] + a*road.start[1]
+            )
+            self.rotated_box(
+                position_stop_zone,
+                (1, 3),
+                cos=road.angle_cos, sin=road.angle_sin,
+                color=(200, 200, 200))
 
     def draw_status(self, t, frame_count):
         text_fps = self.text_font.render(f't={t:.5}', False, (0, 0, 0))
@@ -312,14 +322,14 @@ class Window:
         # self.draw_grid(100, (200,200,200))
         # self.draw_axes()
 
-        (vehicles_on_roads, t, frame_count) = sim_state
+        (vehicles_on_roads, traffic_signals, t, frame_count) = sim_state
         
         all_roads, all_vehicles = [], []
         for road in vehicles_on_roads:
             all_roads.append(road)
             all_vehicles += vehicles_on_roads[road]
         
-        all_signals = []
+        all_signals = traffic_signals
 
         self.draw_roads(all_roads)
         self.draw_vehicles(all_vehicles)

@@ -7,5 +7,6 @@
 ## Requirements
 
 - numpy
+- scipy
 - pygame
 - Toml
