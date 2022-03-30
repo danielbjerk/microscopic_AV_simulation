@@ -14,7 +14,7 @@ class Metrics:
         self.deleted_list = []
         self.through_light_list = []
 
-    def measure(self, t, manager, i):
+    def measure(self, t, manager):
         # I tilfelle destruktive operasjoner gjøres så burde denne funksjonen holdes read-only
         velocities = [car.v for car in manager.vehicles]
         avg_speed_i = np.average(velocities) if velocities else None

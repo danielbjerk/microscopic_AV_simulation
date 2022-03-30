@@ -99,7 +99,7 @@ class Simulation:
         for _ in range(duration*self.fps):
             for _ in range(steps_per_frame):
                 self.update()
-                metrics.measure(self.t, self.traffic_manager.vehicles)
+                metrics.measure(self.t, self.traffic_manager)
 
             if self.animate:
                 quit = win.animation_step(
