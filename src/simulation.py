@@ -30,7 +30,7 @@ class Simulation:
         self.traffic_manager = TrafficManager(sources=scenario.sources, starting_vehicles=scenario.starting_vehicles, map=scenario.map, lights=scenario.lights)
         
         self.generator = default_rng(54321)
-        #seed(0)
+        seed()
 
         self.sources = scenario.sources
         self.ex_arrival_times = scenario.arrival_times # Expected arrival times

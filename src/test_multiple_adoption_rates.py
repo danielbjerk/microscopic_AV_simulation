@@ -12,7 +12,7 @@ scenario_path = "scenarios/straight_with_lights.toml"
 scenario_config = toml.load(scenario_path)
 #scenario = Scenario(scenario_config)
 dF  = pd.DataFrame()
-adopt_rates = np.linspace(0, 1, 3)
+adopt_rates = np.linspace(0, 1, 51)
 meta_metrics = []
 
 tic = time()
@@ -21,7 +21,7 @@ metric_dict = {}
 for rate in adopt_rates:
     print(f"---------Running simulation for {rate} smart vehicle adoption rate---------")
 
-    N = 3
+    N = 100
     #metrics = simulation.run_N_simulations(scenario, N=100, dur_secs=20, sim_config={"animate" : True})  # dupliserte biler beholdes på tvers av sims
     metrics = simulation.run_N_simulations(scenario_config, N=N, dur_secs=60, 
                                             animate=False, smart_vehicle_adoption=rate)
