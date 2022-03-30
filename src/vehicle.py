@@ -6,7 +6,11 @@ class Vehicle:
         self.route = route
 
         self.l = 4              # length of vehicle i
+
+        self.a_max = 1.44       # Max accel of vehicle i    # 4s
+        self.b_max = 4.61       # comfortable deceleration of vehicle i
         self.v_max = 16.6       # max desired speed of vehicle i. Set this as road.v_limit?
+        
         self.x = 0
         self.v = self.v_max
         self.a = 0
@@ -38,14 +42,27 @@ class Vehicle:
                 self.normal_acceleration(car_infront)
                 return
         """
-        self.damping()
+        if car_infront and not light.green() and in_stop_zone:
+            if car_infront.run_this_light and car_infront.route.cur_road == self.route.cur_road:
+                self.damping()
+                return
+            if car_infront.route.cur_road == self.route.cur_road:
+                self.normal_acceleration(car_infront)
+                return
+
+        if in_stop_zone and not light.green() and not self.run_this_light:
+            self.damping()
+            return
+        self.normal_acceleration(car_infront)
         return
 
     def damping(self):
         # Denne burde egentlig drive avstand fra trafikklys mot null.
-        # K_p = 2.4
-        # K_i = 1.44
-        self.a = -self.b_max #- K_p*self.v - K_i*(self.route.cur_road.length - self.x)
+        x_e = self.x - (self.route.cur_road.length - 5)
+        v_e = self.v
+        
+        # Tune dette
+        self.a = max(-(1*x_e + 1.1*2*v_e), -self.b_max)
 
     def normal_acceleration(self, car_infront):
         pass
@@ -104,15 +121,7 @@ class DumbVehicle(Vehicle):
         #!!Note: s0 needs to be bigger than car_infront.l, or else the desired distance is inside the vehicle in front.
         #Also: Want to change self.s0 to 2*car_infront.l for dumb vehicle, and 1.5*car_infront.l for smart vehicle.
 
-
-        self.a_max = 1.44       # Max accel of vehicle i    # 4s
-        self.b_max = 4.61       # comfortable deceleration of vehicle i
-
-        self.stopped = False
-
         self.smart = False
-
-        self.v_max = 16.6
 
         self.color = (0, 0, 255)
 
@@ -139,11 +148,6 @@ class SmartVehicle(Vehicle):
         self.delta = 4          # smoothness of the acceleration
         self.s0 = 6            # min desired distance between vehicle i and i-1 
         self.link_window = 4
-
-        self.a_max = 1.44       # Max accel of vehicle i    # 4s
-        self.b_max = 4.61       # comfortable deceleration of vehicle i
-
-        self.stopped = False
 
         self.smart = True
         self.state = "init"

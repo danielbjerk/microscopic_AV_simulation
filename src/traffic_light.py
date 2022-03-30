@@ -16,7 +16,7 @@ class TrafficLight:
         self.time_at_last_change = 0
         self.time_in_cur_cycle = 0
         self.maxtime = 10
-        self.stop_zone = 30
+        self.stop_zone = 40
 
     def green(self):
         return self.cycle[self.cycle_index]
