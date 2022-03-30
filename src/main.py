@@ -1,11 +1,6 @@
 from scenario import Scenario
 from simulation import *
 import toml
-import random
-import numpy
-
-random.seed(0)
-numpy.random.seed(0)
 
 # Create simulation
 scenario_path = "scenarios/straight_with_lights.toml"
