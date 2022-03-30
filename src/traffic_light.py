@@ -28,5 +28,5 @@ class TrafficLight:
             self.cycle_index %= len(self.cycle)
             self.time_in_cur_cycle = 0
             self.time_at_last_change = t
-        print(f"{self.cycle[self.cycle_index]}, {self.time_at_last_change}, {self.time_in_cur_cycle}, {self.cycle_index}")
+        #print(f"{self.cycle[self.cycle_index]}, {self.time_at_last_change}, {self.time_in_cur_cycle}, {self.cycle_index}")
         return self.cycle[self.cycle_index]
