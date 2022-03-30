@@ -88,7 +88,6 @@ class Simulation:
 
             # Draw arrival time for the next vehicle at this source
             self.arrival_times[source] = self.t + self.generator.exponential(self.ex_arrival_times[source])
-            print(self.arrival_times[source])
 
     def run(self, duration, steps_per_frame = 1):
         """Run the simulation. The duration is in seconds."""
