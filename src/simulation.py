@@ -18,10 +18,13 @@ def run_N_simulations(scenario_config, N, dur_secs, **config):
 
 class Simulation:    
     def __init__(self, scenario, **config):
-        # Set default configuration
-        self.set_default_config()
+        self.t = 0.0            # Time keeping
+        self.frame_count = 0    # Frame count keeping
+        self.fps = 60           # Frames per second
+        self.dt = 1/self.fps    # Simulation time step
+        self.traffic_signals = []
+        self.smart_vehicle_adoption = 0.5
 
-        # Update configuration
         for attr, val in config.items():
             setattr(self, attr, val)
         
@@ -36,15 +39,6 @@ class Simulation:
         self.sources = scenario.sources
         self.ex_arrival_times = scenario.arrival_times # Expected arrival times
         self.arrival_times = {source: self.generator.exponential(time) for source, time in self.ex_arrival_times.items()}
-
-    def set_default_config(self):
-        self.t = 0.0            # Time keeping
-        self.frame_count = 0    # Frame count keeping
-        self.fps = 60           # Frames per second
-        self.dt = 1/self.fps    # Simulation time step
-        self.traffic_signals = []
-        self.smart_vehicle_adoption = 0.5
-
 
     def update(self):
         self.t += self.dt
@@ -83,7 +77,7 @@ class Simulation:
         metrics_init = False
         init_metrics_after_secs = 20
 
-        for _ in range(duration*self.fps):
+        for _ in range(duration*self.fps//steps_per_frame):
             if self.t >= init_metrics_after_secs and not metrics_init:
                 metrics = Metrics() # Burde kanskje være klassevariabel i simulation? Kanskje ikke?
                 metrics_init = True

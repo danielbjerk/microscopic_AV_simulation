@@ -281,7 +281,9 @@ class Window:
 
     def draw_signals(self, all_signals):
         for signal in all_signals:
-            color = (0, 255, 0) if signal.green() else (255, 0, 0)
+            if not signal.show: break
+
+            color = (0, 255, 0) if signal.is_green else (255, 0, 0)
             road = signal.road
             a = 0
             position = (
