@@ -15,8 +15,8 @@ meta_metrics = []
 metric_dict = {}    # Skal bli dataframe
 
 # Hyper-parameters
-adopt_rates = np.linspace(0, 1, 21)
-num_sims_pr_scen = 100
+adopt_rates = np.linspace(0, 1, 6)
+num_sims_pr_scen = 10
 dur_single_sim_secs = 80
 
 tic = time()
@@ -72,8 +72,34 @@ def plot_from_dF(dF, value, error = False, plot_sdt = False):
         plt.xlabel('adoption rate of autonomus vehicle')
         plt.ylabel(f'SD {value}')
         plt.show()
-
+'''
 plot_from_dF(dF, 'velocities', True, True)
 plot_from_dF(dF, 'idle_time', True, True)
 plot_from_dF(dF, 'deleted', True)
 plot_from_dF(dF, 'through_light', True)
+'''
+def boxplot_from_dF(dF, value, error = False, plot_sdt = False):
+    rates = []
+    avgs = []
+    for key in dF:
+        key_split = key.split(' ')
+        if key_split[1] == value:
+            rates.append(float(key_split[0]))
+            avgs.append(dF[key].tolist())
+    #plt.plot(rates, avg, 'o-')
+    for avg in avgs:
+        print(avg)
+
+    plt.boxplot(avgs, positions= rates)
+    plt.xlabel('adoption rate of autonomus vehicle')
+    plt.ylabel(value)
+    plt.savefig(value + '.pdf')
+    #plt.show()
+    
+
+#boxplot_from_dF(dF, 'velocities', True, True)
+
+boxplot_from_dF(dF, 'velocities', True, True)
+boxplot_from_dF(dF, 'idle_time', True, True)
+boxplot_from_dF(dF, 'deleted', True)
+boxplot_from_dF(dF, 'through_light', True)
