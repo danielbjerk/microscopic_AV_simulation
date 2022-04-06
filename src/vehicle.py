@@ -123,7 +123,7 @@ class DumbVehicle(Vehicle):
 
         self.smart = False
 
-        self.color = (0, 0, 255)
+        self.color = (255, 0, 0)
 
         for key, attr in config.items():
             setattr(self, key, attr)
@@ -206,6 +206,6 @@ class SmartVehicle(Vehicle):
         elif self.state == "copy_next_v":
             self.color = (255, 255, 0)
         elif car_infront:
-            self.color = (255, 0, 0)
+            self.color = (0, 0, 255)
         else:
             self.color = (255,255,255)
