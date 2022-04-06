@@ -15,8 +15,8 @@ meta_metrics = []
 metric_dict = {}    # Skal bli dataframe
 
 # Hyper-parameters
-adopt_rates = np.linspace(0, 1, 6)
-num_sims_pr_scen = 10
+adopt_rates = np.round(np.linspace(0, 1, 21), decimals=2)
+num_sims_pr_scen = 100
 dur_single_sim_secs = 80
 
 tic = time()
