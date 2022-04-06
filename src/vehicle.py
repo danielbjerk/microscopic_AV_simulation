@@ -1,4 +1,3 @@
-from random import random
 import numpy as np
 
 class Vehicle:
@@ -7,7 +6,7 @@ class Vehicle:
 
         self.l = 4              # length of vehicle i
 
-        self.a_max = 1.44       # Max accel of vehicle i    # 4s
+        self.a_max = 2       # Max accel of vehicle i    # 4s
         self.b_max = 4.61       # comfortable deceleration of vehicle i
         self.v_max = 16.6       # max desired speed of vehicle i. Set this as road.v_limit?
         
