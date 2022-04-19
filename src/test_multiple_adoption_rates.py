@@ -90,6 +90,20 @@ plot_from_dF(dF, 'deleted', True)
 plot_from_dF(dF, 'through_light', True)
 '''
 def boxplot_from_dF(dF, value):
+    title_dict = {'velocities': r'Fart av biler', 
+                    'idle_time' : 'Total stillestående tid', 
+                    'deleted': 'Biler som når enden', 
+                    'through_light': 'Gjennomflyt av biler i lyskryss'}
+
+    y_label_dict = {'velocities': r'Gjennomsnittsfart [$\frac{km}{h}$]', 
+                    'idle_time' : 'Samlet ventetid [s]', 
+                    'deleted': 'Biler fjernet fra simulering', 
+                    'through_light': 'Biler gjennom lys'}
+    scaling = 1
+    if value == 'velocities': 
+        scaling =  3.6 ## m/s to km/h
+    elif value == 'idle_time':
+        scaling = 1 / 60 ## frames to seconds
     rates = []
     avgs = []
     for key in dF:
@@ -97,15 +111,17 @@ def boxplot_from_dF(dF, value):
         if key_split[1] == value:
             
             rates.append(float(key_split[0]))
-            avgs.append(dF[key].tolist())
+            avgs.append(np.array(dF[key].tolist()) * scaling)
     #plt.plot(rates, avg, 'o-')
     #print(np.unique(rates)[::4])
     #print(avgs)
     print(np.mean(avgs))
     plt.boxplot(avgs, positions= rates, widths=0.01)
-    plt.xlabel('adoption rate of autonomus vehicle')
+    plt.xlim((min(rates)-0.05, max(rates)+0.05))
+    plt.title(title_dict[value])
+    plt.xlabel('Andel autonome kjøretøy')
     plt.xticks(ticks=np.unique(rates)[::10], labels=np.unique(rates)[::10])
-    plt.ylabel(value)
+    plt.ylabel(y_label_dict[value])
     plt.savefig('out/' + value + '_pb.pdf')
     plt.show()
     
