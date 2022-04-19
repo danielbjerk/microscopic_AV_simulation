@@ -9,28 +9,34 @@ import matplotlib.pyplot as plt
 # Create simulation
 scenario_path = "scenarios/straight_with_lights.toml"
 scenario_config = toml.load(scenario_path)
-
+'''
 dF  = pd.DataFrame()
 meta_metrics = []
 metric_dict = {}    # Skal bli dataframe
-
+'''
 # Hyper-parameters
-adopt_rates = np.round(np.linspace(0, 1, 21), decimals=2)
+
+adopt_rates = np.round(np.linspace(0, 1, 51), decimals=2)
 num_sims_pr_scen = 100
 dur_single_sim_secs = 80
-def run_Simulations(write = False):
+
+def run_Simulations(adopt_rates, num_sims_pr_scen, dur_single_sim_secs, write = False):
+    dF  = pd.DataFrame()
+    meta_metrics = []
+    metric_dict = {}    # Skal bli dataframe
     tic = time()
     for rate in adopt_rates:
         print(f"---------Running simulation for {rate} smart vehicle adoption rate---------")
+        print(f"---------Running simulation for {dur_single_sim_secs} total_time---------")
 
-        metrics = simulation.run_N_simulations(scenario_config, N=num_sims_pr_scen, dur_secs=dur_single_sim_secs, 
+        sim_metrics = simulation.run_N_simulations(scenario_config, N=num_sims_pr_scen, dur_secs=dur_single_sim_secs, 
                                                 animate=False, smart_vehicle_adoption=rate)
 
         its = np.array(range(num_sims_pr_scen))
-        avgs = np.array([m.avg_of_avgs for m in metrics])
+        avgs = np.array([m.avg_of_avgs for m in sim_metrics])
         meta_metrics.append(np.nanmean(avgs))
         
-        for m in metrics:
+        for m in sim_metrics:
             for key in m.metric_dict:
                 new_key = str(rate) + ' ' + key
                 
@@ -48,7 +54,7 @@ def run_Simulations(write = False):
     print(f'time = {toc-tic} s')
     return dF
 
-
+#dF = run_Simulations(adopt_rates, num_sims_pr_scen, dur_single_sim_secs, write = True)
 # meta_metrics = np.array(meta_metrics)
 # plt.plot(adopt_rates, meta_metrics)
 # plt.show()
@@ -96,11 +102,11 @@ def boxplot_from_dF(dF, value):
     #print(np.unique(rates)[::4])
     #print(avgs)
     print(np.mean(avgs))
-    plt.boxplot(avgs, positions= rates, widths=0.025)
+    plt.boxplot(avgs, positions= rates, widths=0.01)
     plt.xlabel('adoption rate of autonomus vehicle')
-    plt.xticks(ticks=np.unique(rates)[::4], labels=np.unique(rates)[::4])
+    plt.xticks(ticks=np.unique(rates)[::10], labels=np.unique(rates)[::10])
     plt.ylabel(value)
-    plt.savefig('out/' + value + '_pb.png')
+    plt.savefig('out/' + value + '_pb.pdf')
     plt.show()
     
 
