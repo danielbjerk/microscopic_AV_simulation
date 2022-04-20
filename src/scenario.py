@@ -18,8 +18,8 @@ class Scenario:
         self.lights = []
         for i in range(len(config["traffic_lights"])):
             road_i = config["traffic_lights"][i]
-            init_cycle_i = config["traffic_lights_init_index"][i]
-            self.lights.append(TrafficLight(map[road_i], init_cycle_i))
+            is_init_green = config["traffic_lights_is_init_green"][i]
+            self.lights.append(TrafficLight(map[road_i], is_init_green))
 
         # Dictionary: {source: rate}. Source is int and rate is float.
         self.arrival_times = {source: time for source, time in zip(self.sources, config["arrival_times"])}

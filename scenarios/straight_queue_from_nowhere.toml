@@ -1,7 +1,7 @@
 # map
 roads = [
-    [[-200, 0], [0, 0]],    # 0
-    [[0, 0], [200, 0]]      # 1
+    [[-600, 0], [0, 0]],    # 0
+    [[0, 0], [600, 0]]      # 1
     ]
 
 legal_routes = [[0, 1]]
@@ -10,7 +10,7 @@ traffic_lights = [0]
 traffic_lights_is_init_green = [false]
 
 # generation
-arrival_times = [5]
+arrival_times = [2]
 
 # generation
 stochastic = true

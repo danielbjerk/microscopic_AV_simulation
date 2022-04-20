@@ -2,7 +2,7 @@ from road import Road
 
 class Route:
 
-    def __init__(self, list_roads) -> None:
+    def __init__(self, list_roads):
         self.roads = list_roads
         self.cur_index = 0
         self.cur_road = self.roads[self.cur_index]

@@ -1,6 +1,6 @@
 class TrafficManager:
 
-    def __init__(self, sources, starting_vehicles, map, lights) -> None:
+    def __init__(self, sources, starting_vehicles, map, lights):
         self.vehicles = starting_vehicles                   # biler som skal følge ruten som inneholder veier.
         self.vehicles_on_road = {road: [] for road in map}  # Dictionary mellom road og hvilke vehicles som er på den veien. (unødvendig?)
 

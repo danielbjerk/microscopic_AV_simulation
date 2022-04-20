@@ -1,25 +1,19 @@
 class TrafficLight:
-    light = {0:'Red', 1:'Green'}
-
-    def __init__(self, road, init_cycle_index):
+    def __init__(self, road, is_init_green = True):
         self.road = road
         self.pos = road.end 
-        self.cycle_index = init_cycle_index
-        #self.cycles_dict = {1:(True,False) , 2:((True,False),(False,True))} ## Er dette felles for alle trafikklys
-        self.cycle = (True, False)#self.cycles_dict[len(road)]
         self.time_at_last_change = 0
-        self.time_in_cur_cycle = 0
-        self.maxtime = 10
+        self.is_green = is_init_green
+        self.green_time = 10
+        self.red_time = 10
         self.stop_zone = 40
-
-    def green(self):
-        return self.cycle[self.cycle_index]
+        self.show = True
 
     def update(self, t):
-        self.time_in_cur_cycle = t - self.time_at_last_change
-        if self.time_in_cur_cycle >= self.maxtime:
-            self.cycle_index += 1
-            self.cycle_index %= len(self.cycle)
-            self.time_in_cur_cycle = 0
+        if self.is_green and t - self.time_at_last_change >= self.green_time:
+            self.is_green = False
             self.time_at_last_change = t
-        return self.cycle[self.cycle_index]
+        if not self.is_green and t - self.time_at_last_change >= self.red_time:
+            self.is_green = True
+            self.time_at_last_change = t
+        return self.is_green
