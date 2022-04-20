@@ -3,7 +3,7 @@ import plotting
 
 
 class Metrics:
-    def __init__(self) -> None:
+    def __init__(self):
         self.avg_speeds = []
 
         self.metric_dict = {}
