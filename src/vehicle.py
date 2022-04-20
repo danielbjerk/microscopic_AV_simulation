@@ -1,7 +1,8 @@
 import numpy as np
 
 class Vehicle:
-    def __init__(self, route):        
+    def __init__(self, route, time):  
+        self.spawn_time = time  # Time the vehicle spawns
         self.route = route
 
         self.l = 4              # length of vehicle i
@@ -95,7 +96,7 @@ class Vehicle:
     
     def update(self, dt, car_infront=None, light=None):
         self.control_acceleration(car_infront, light)
-        
+
         if self.smart:
             self.set_state()
 
@@ -110,11 +111,11 @@ class Vehicle:
 
 
 class DumbVehicle(Vehicle):
-    def __init__(self, route, config={}):
-        super().__init__(route)
+    def __init__(self, route, time, config={}):
+        super().__init__(route, time)
 
         #Parameters for idm: 
-        self.T = 0.25              # Reaction time of vehicle i's driver. Set to 0 when self.smart==True.
+        self.T = 1              # Reaction time of vehicle i's driver. Set to 0 when self.smart==True.
         self.delta = 4          # smoothness of the acceleration
         self.s0 = 8             # min desired distance between vehicle i and i-1. 
         #!!Note: s0 needs to be bigger than car_infront.l, or else the desired distance is inside the vehicle in front.
@@ -139,8 +140,8 @@ class DumbVehicle(Vehicle):
     
     
 class SmartVehicle(Vehicle):
-    def __init__(self, route, config={}):
-        super().__init__(route)
+    def __init__(self, route, time, config={}):
+        super().__init__(route, time)
 
         #Parameters for idm: 
         self.T = 0             # Reaction time of vehicle i's driver. Set to 0 when self.smart==True.

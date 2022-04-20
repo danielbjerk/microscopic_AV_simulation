@@ -58,9 +58,9 @@ class Simulation:
 
             # Add a smart car or a normal car to the queue.
             if uniform() < self.smart_vehicle_adoption:
-                self.traffic_manager.add_vehicle(source, SmartVehicle(route))
+                self.traffic_manager.add_vehicle(source, SmartVehicle(route, self.t))
             else:
-                vehicle = DumbVehicle(route)
+                vehicle = DumbVehicle(route, self.t)
                 # Stocastic reaction time
                 vehicle.T = max(0, vehicle.T + self.generator.normal(0, 0.0695))
                 self.traffic_manager.add_vehicle(source, vehicle)
@@ -96,6 +96,6 @@ class Simulation:
                 if quit:
                     break
 
-        metrics.finalize()
+        metrics.finalize(duration)
 
         return metrics
