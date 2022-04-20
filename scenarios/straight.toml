@@ -10,6 +10,7 @@ legal_routes = [[0], [1]]
 arrival_times = [1, 1]
 
 traffic_lights = []
+traffic_lights_init_index = []
 
 
 # generation

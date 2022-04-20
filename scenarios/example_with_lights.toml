@@ -22,6 +22,7 @@ legal_routes = [[0, 1], [2, 3], [2, 13, 8], [2, 13, 14], [6, 5, 7, 1], [6, 5, 4]
 arrival_times = [50, 50, 50, 20, 10]
 
 traffic_lights = [7, 0, 14, 9]
+traffic_lights_init_index = [0, 1, 0 , 1]
 
 # generation
 stochastic = true
