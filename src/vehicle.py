@@ -63,6 +63,9 @@ class Vehicle:
         # Tune dette
         self.a = max(-(1*x_e + 1.1*2*v_e), -self.b_max)
 
+        # Dette må refaktoreres i framtiden, dette er hacky fix fordi update_physics sjekker if self.link
+        self.link = False
+
     def normal_acceleration(self, car_infront):
         pass
 
