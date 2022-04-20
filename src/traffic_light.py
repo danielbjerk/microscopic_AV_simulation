@@ -1,10 +1,10 @@
 class TrafficLight:
     light = {0:'Red', 1:'Green'}
 
-    def __init__(self, road):
+    def __init__(self, road, init_cycle_index):
         self.road = road
         self.pos = road.end 
-        self.cycle_index = 0
+        self.cycle_index = init_cycle_index
         #self.cycles_dict = {1:(True,False) , 2:((True,False),(False,True))} ## Er dette felles for alle trafikklys
         self.cycle = (True, False)#self.cycles_dict[len(road)]
         self.time_at_last_change = 0

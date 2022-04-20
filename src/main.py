@@ -3,7 +3,7 @@ from simulation import *
 import toml
 
 # Create simulation
-scenario_path = "scenarios/straight_with_lights.toml"
+scenario_path = "scenarios/cross_with_lights.toml"
 scenario_config = toml.load(scenario_path)
 scenario = Scenario(scenario_config)
 

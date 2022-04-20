@@ -15,7 +15,11 @@ class Scenario:
         self.sources = list(set([r[0] for r in config["legal_routes"]]))
         self.routes = {s: [r for r in config["legal_routes"] if r[0]==s] for s in self.sources}
 
-        self.lights = [TrafficLight(map[r_i]) for r_i in config["traffic_lights"]]
+        self.lights = []
+        for i in range(len(config["traffic_lights"])):
+            road_i = config["traffic_lights"][i]
+            init_cycle_i = config["traffic_lights_init_index"][i]
+            self.lights.append(TrafficLight(map[road_i], init_cycle_i))
 
         # Dictionary: {source: rate}. Source is int and rate is float.
         self.arrival_times = {source: time for source, time in zip(self.sources, config["arrival_times"])}
