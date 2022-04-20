@@ -7,14 +7,14 @@ from numpy.random import default_rng, uniform, randint
 import scenario as scen
 
 def run_N_simulations(scenario_config, N, dur_secs, **config):
-    metrics = []
+    N_metrics = []
     for i in range(N):
         scenario_i = scen.Scenario(scenario_config)
         print(f"Running simulation {i+1}...")
         sim = Simulation(scenario_i, **config)
         metric_i = sim.run(dur_secs)
-        metrics.append(metric_i)
-    return metrics
+        N_metrics.append(metric_i)
+    return N_metrics
 
 class Simulation:    
     def __init__(self, scenario, **config):
