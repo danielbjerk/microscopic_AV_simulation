@@ -16,8 +16,8 @@ metric_dict = {}    # Skal bli dataframe
 '''
 # Hyper-parameters
 
-adopt_rates = np.round(np.linspace(0, 1, 51), decimals=2)
-num_sims_pr_scen = 100
+adopt_rates = np.round(np.linspace(0, 1, 5+1), decimals=2)
+num_sims_pr_scen = 10
 dur_single_sim_secs = 80
 
 def run_Simulations(adopt_rates, num_sims_pr_scen, dur_single_sim_secs, write = False):
@@ -54,7 +54,7 @@ def run_Simulations(adopt_rates, num_sims_pr_scen, dur_single_sim_secs, write = 
     print(f'time = {toc-tic} s')
     return dF
 
-#dF = run_Simulations(adopt_rates, num_sims_pr_scen, dur_single_sim_secs, write = True)
+
 # meta_metrics = np.array(meta_metrics)
 # plt.plot(adopt_rates, meta_metrics)
 # plt.show()
@@ -93,12 +93,14 @@ def boxplot_from_dF(dF, value):
     title_dict = {'velocities': r'Fart av biler', 
                     'idle_time' : 'Total stillestående tid', 
                     'deleted': 'Biler som når enden', 
-                    'through_light': 'Gjennomflyt av biler i lyskryss'}
+                    'through_light': 'Gjennomflyt av biler i lyskryss',
+                    'lifetimes': 'Tid brukt på vei'}
 
-    y_label_dict = {'velocities': r'Gjennomsnittsfart [$\frac{km}{h}$]', 
+    y_label_dict = {'velocities': r'Gjennomsnittsfart $\big[\frac{km}{h}\big]$', 
                     'idle_time' : 'Samlet ventetid [s]', 
                     'deleted': 'Biler fjernet fra simulering', 
-                    'through_light': 'Biler gjennom lys'}
+                    'through_light': 'Biler gjennom lys',
+                    'lifetimes': 'Tid [s]'}
     scaling = 1
     if value == 'velocities': 
         scaling =  3.6 ## m/s to km/h
@@ -116,17 +118,27 @@ def boxplot_from_dF(dF, value):
     #print(np.unique(rates)[::4])
     #print(avgs)
     print(np.mean(avgs))
+    print(len(rates), len(avgs))
     plt.boxplot(avgs, positions= rates, widths=0.01)
     plt.xlim((min(rates)-0.05, max(rates)+0.05))
-    plt.title(title_dict[value])
+    if value in title_dict:
+        plt.title(title_dict[value])
+        plt.ylabel(y_label_dict[value])
+    else:
+        plt.ylabel(value)
     plt.xlabel('Andel autonome kjøretøy')
     plt.xticks(ticks=np.unique(rates)[::10], labels=np.unique(rates)[::10])
-    plt.ylabel(y_label_dict[value])
+    
     plt.savefig('out/' + value + '_pb.pdf')
     plt.show()
     
 
-#boxplot_from_dF(dF, 'velocities', True, True)
+
+dF = run_Simulations(adopt_rates, num_sims_pr_scen, dur_single_sim_secs, write = True)
+print(dF.keys())
+boxplot_from_dF(dF, 'idle_time')
+boxplot_from_dF(dF, 'lifetimes')
+#boxplot_from_dF(dF, 'median_vel')
 '''
 boxplot_from_dF(dF, 'velocities')
 boxplot_from_dF(dF, 'idle_time')

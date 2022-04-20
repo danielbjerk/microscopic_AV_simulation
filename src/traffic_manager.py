@@ -19,6 +19,8 @@ class TrafficManager:
         self.deleted_vehicles = 0
         # Number of vehicles through a light
         self.through_light = 0
+        # List of total lifetime of deleted cars
+        self.lifetimes = []
 
         for v in starting_vehicles:
             self.vehicles_on_road[v.route.cur_road].append(v)
@@ -54,9 +56,10 @@ class TrafficManager:
         if not self.vehicle_buffers[source]:
             self.vehicle_buffers[source].append(vehicle)
 
-    def remove_vehicle(self, vehicle):
+    def remove_vehicle(self, vehicle,t):
         try:
             self.deleted_vehicles += 1
+            self.lifetimes.append(t - vehicle.spawn_time) ## Lifetime of vehicle when removed
             self.vehicles.remove(vehicle)
             self.vehicles_on_road[vehicle.route.cur_road].remove(vehicle)
             return ("vehicle_removed", vehicle)
@@ -64,11 +67,11 @@ class TrafficManager:
             print("Vehicle somehow already removed?")
             return ("vehicle_already_removed", vehicle)
 
-    def iterate_route(self, vehicle):
+    def iterate_route(self, vehicle, t):
         old_road = vehicle.route.cur_road
         new_road = vehicle.route.iterate()
         if not new_road:
-            return self.remove_vehicle(vehicle)
+            return self.remove_vehicle(vehicle,t)
         else:
             self.vehicles_on_road[old_road].remove(vehicle)
             self.vehicles_on_road[new_road].append(vehicle)
@@ -77,11 +80,11 @@ class TrafficManager:
                 self.through_light += 1
             return ("vehicle_iterated_route", vehicle)
 
-    def parse_vehicle_update_msg(self, update_msg):        
+    def parse_vehicle_update_msg(self, update_msg,t):        
         if not update_msg: return
         msg_type, msg_sender = update_msg
         if msg_type == "traversed_road":
-            result = self.iterate_route(msg_sender)
+            result = self.iterate_route(msg_sender,t)
         elif msg_type == "other_update_type":
             # do something else
             pass
@@ -102,7 +105,7 @@ class TrafficManager:
         
         light_statuses = [l.update(t) for l in self.lights]
         vehicle_results = [v.update(dt, self.vehicle_in_front(v), self.lights_on_road[v.route.cur_road]) for v in self.vehicles]
-        results = [self.parse_vehicle_update_msg(msg) for msg in vehicle_results]
+        results = [self.parse_vehicle_update_msg(msg,t) for msg in vehicle_results]
 
         # Do more? What other traffic parts must be updated at each time moment?
         
