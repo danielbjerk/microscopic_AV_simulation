@@ -207,8 +207,8 @@ class SmartVehicle(Vehicle):
         if self.state == "linked":
             self.color = (0, 255, 0)
         elif self.state == "copy_next_v":
-            self.color = (255, 255, 0)
+            self.color = (0, 0, 255)
         elif car_infront:
             self.color = (0, 0, 255)
         else:
-            self.color = (255,255,255)
+            self.color = (0,0,255)
