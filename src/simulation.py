@@ -96,6 +96,6 @@ class Simulation:
                 if quit:
                     break
 
-        metrics.finalize(duration)
+        metrics.finalize(duration, self.traffic_manager)
 
         return metrics

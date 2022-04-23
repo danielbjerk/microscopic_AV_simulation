@@ -4,6 +4,8 @@ class Vehicle:
     def __init__(self, route, time):  
         self.spawn_time = time  # Time the vehicle spawns
         self.route = route
+        self.full_dist = np.sum([road.length for road in route.roads]) # Length of all roads on route
+        self.traversed_dist = 0
 
         self.l = 4              # length of vehicle i
 
@@ -19,6 +21,9 @@ class Vehicle:
         self.copy_next_v = False
 
         self.run_this_light = False
+    
+    def get_traversed_dist(self):
+        return self.traversed_dist + self.x
 
     def control_acceleration(self, car_infront, light):
         if not light:

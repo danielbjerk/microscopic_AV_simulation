@@ -21,6 +21,7 @@ class TrafficManager:
         self.through_light = 0
         # List of total lifetime of deleted cars
         self.lifetimes = []
+        self.mean_vel = []
 
         for v in starting_vehicles:
             self.vehicles_on_road[v.route.cur_road].append(v)
@@ -60,6 +61,8 @@ class TrafficManager:
         try:
             self.deleted_vehicles += 1
             self.lifetimes.append(t - vehicle.spawn_time) ## Lifetime of vehicle when removed
+            #self.mean_vel.append(vehicle.full_dist/self.lifetimes[-1]) ## Full route len / lifetime
+            self.mean_vel.append(vehicle.get_traversed_dist()/self.lifetimes[-1]) ## Full route len / lifetime
             self.vehicles.remove(vehicle)
             self.vehicles_on_road[vehicle.route.cur_road].remove(vehicle)
             return ("vehicle_removed", vehicle)
@@ -70,6 +73,7 @@ class TrafficManager:
     def iterate_route(self, vehicle, t):
         old_road = vehicle.route.cur_road
         new_road = vehicle.route.iterate()
+        vehicle.traversed_dist += old_road.length ## Adds distance of old road when traversed
         if not new_road:
             return self.remove_vehicle(vehicle,t)
         else:
