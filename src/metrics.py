@@ -47,10 +47,10 @@ class Metrics:
         #     mean_speed_list.append((traversed + vehicle.x)/duration)
         #self.metric_dict['velocities'] = np.array(self.avg_of_avgs) 
         #self.metric_dict['mean_vel'] = np.mean(manager.mean_vel + mean_speed_list)
-        mean_speed_list = []
-        for vehicle in manager.vehicles:
-            vehicle.traversed_dist += vehicle.x
-            mean_speed_list.append(vehicle.traversed_dist / (duration-vehicle.spawn_time))
+        # mean_speed_list = []
+        # for vehicle in manager.vehicles:
+        #     vehicle.traversed_dist += vehicle.x
+        #     mean_speed_list.append(vehicle.traversed_dist / (duration-vehicle.spawn_time))
         #print(manager.mean_vel)
         self.metric_dict['mean_vel'] = np.mean(manager.mean_vel)# + mean_speed_list)
         #self.metric_dict['median_vel'] = np.array(self.median_of_medians)
@@ -65,7 +65,7 @@ class Metrics:
         self.spawn_times = [car.spawn_time for car in manager.vehicles]
         self.metric_dict['lifetimes'] = np.mean(manager.lifetimes)
                                                 #+ [duration-spawn_time for spawn_time in self.spawn_times])
-        self.time_pos = [self.mean_positions,self.times]
+        self.time_pos = [self.times, self.mean_positions]
         
 
     def plot_all(self):
