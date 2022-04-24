@@ -108,13 +108,17 @@ plot_from_dF(dF, 'through_light', True)
 '''
 def boxplot_from_dF(dF, value):
     title_dict = {'velocities': r'Fart av biler', 
+                    'mean_vel': r'Fart av biler', 
                     'idle_time' : 'Total stillestående tid', 
+                    'Lifetime' : 'Tid fra start til slutt', 
                     'deleted': 'Biler som når enden', 
                     'through_light': 'Gjennomflyt av biler i lyskryss',
                     'lifetimes': 'Tid brukt på vei'}
 
     y_label_dict = {'velocities': r'Gjennomsnittsfart $[\frac{km}{h}]$', 
-                    'idle_time' : 'Samlet ventetid [s]', 
+                    'mean_vel': r'Gjennomsnittsfart $[\frac{km}{h}]$', 
+                    'idle_time' : 'Total stillestående tid', 
+                    'Lifetime' : 'Tid [s]', 
                     'deleted': 'Biler fjernet fra simulering', 
                     'through_light': 'Biler gjennom lys',
                     'lifetimes': 'Tid [s]'}
