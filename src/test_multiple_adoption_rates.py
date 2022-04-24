@@ -32,7 +32,7 @@ def run_Simulations(adopt_rates, num_sims_pr_scen, dur_single_sim_secs, write = 
         print(f"---------Running simulation for {dur_single_sim_secs} total_time---------")
 
         sim_metrics = simulation.run_N_simulations(scenario_config, N=num_sims_pr_scen, dur_secs=dur_single_sim_secs, 
-                                                animate=False, smart_vehicle_adoption=rate)
+                                                config={"animate" : False, "smart_vehicle_adoption" : rate})
         '''
         its = np.array(range(num_sims_pr_scen))
         avgs = np.array([m.avg_of_avgs for m in sim_metrics])
@@ -56,6 +56,7 @@ def run_Simulations(adopt_rates, num_sims_pr_scen, dur_single_sim_secs, write = 
     toc = time()
     if write:
         dF.to_excel('metrics.xlsx')
+        dF_pos_time_rate.to_excel('pos_time_rate.xlsx')
 
     print(f'time = {toc-tic} s')
     return dF, dF_pos_time_rate
@@ -171,14 +172,14 @@ dF, dF_pos_time_rate = run_Simulations(adopt_rates, num_sims_pr_scen, dur_single
 #dF_pos_time_rate.to_excel('pos_time_rate.xlsx')
 #boxplot_from_dF(dF, 'velocities')
 #boxplot_from_dF(dF, 'mean_vel')
-time_plot(dF_pos_time_rate, [0.0, 0.5, 1.0], )
+#time_plot(dF_pos_time_rate, [0.0, 0.5, 1.0], )
 #boxplot_from_dF(dF, 'idle_time')
 #boxplot_from_dF(dF, 'lifetimes')
 #boxplot_from_dF(dF, 'median_vel')
 
 #boxplot_from_dF(dF, 'velocities')
 #boxplot_from_dF(dF, 'idle_time')
-boxplot_from_dF(dF, 'mean_vel')
-boxplot_from_dF(dF, 'lifetimes')
-boxplot_from_dF(dF, 'deleted')
-boxplot_from_dF(dF, 'through_light')
+#boxplot_from_dF(dF, 'mean_vel')
+#boxplot_from_dF(dF, 'lifetimes')
+#boxplot_from_dF(dF, 'deleted')
+#boxplot_from_dF(dF, 'through_light')

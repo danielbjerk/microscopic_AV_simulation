@@ -10,7 +10,7 @@ traffic_lights = [0]
 traffic_lights_is_init_green = [false]
 
 # generation
-arrival_times = [1]
+arrival_times = [5]
 
 # generation
 stochastic = true

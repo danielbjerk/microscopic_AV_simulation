@@ -8,17 +8,17 @@ import scenario as scen
 
 from time import time
 
-def run_N_simulations(scenario_config, N, dur_secs, **config):
+def run_N_simulations(scenario_config, N, dur_secs, config):
     N_metrics = []
     for i in range(N):
         scenario_i = scen.Scenario(scenario_config)
         print(f"Running simulation {i+1}...")
-        tic_1 = time()
+        #tic_1 = time()
         sim = Simulation(scenario_i, **config)
         metric_i = sim.run(dur_secs,5)
         N_metrics.append(metric_i)
-        toc_1 = time()
-        print(f'time = {toc_1-tic_1} s')
+        #toc_1 = time()
+        #print(f'time = {toc_1-tic_1} s')
     return N_metrics
 
 class Simulation:    
@@ -39,6 +39,7 @@ class Simulation:
                                             map=scenario.map, 
                                             lights=scenario.lights)
         
+        #self.generator = default_rng(seed=1)
         self.generator = default_rng()
 
         self.sources = scenario.sources
