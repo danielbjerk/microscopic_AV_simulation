@@ -123,7 +123,7 @@ class DumbVehicle(Vehicle):
         super().__init__(route, time)
 
         #Parameters for idm: 
-        self.T = 1              # Reaction time of vehicle i's driver. Set to 0 when self.smart==True.
+        self.T = 1.0            # Reaction time of vehicle i's driver. Set to 0 when self.smart==True.
         self.delta = 4          # smoothness of the acceleration
         self.s0 = 8             # min desired distance between vehicle i and i-1. 
         #!!Note: s0 needs to be bigger than car_infront.l, or else the desired distance is inside the vehicle in front.

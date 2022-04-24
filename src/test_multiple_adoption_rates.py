@@ -7,7 +7,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 # Create simulation
-scenario_path = "scenarios/straight_queue_from_nowhere.toml"
+scenario_path = "scenarios/straight_with_lights.toml"
 scenario_config = toml.load(scenario_path)
 '''
 dF  = pd.DataFrame()
@@ -16,9 +16,9 @@ metric_dict = {}    # Skal bli dataframe
 '''
 # Hyper-parameters
 
-adopt_rates = np.round(np.linspace(0, 1, 10+1), decimals=2)
-num_sims_pr_scen = 10
-dur_single_sim_secs = 80
+adopt_rates = np.round(np.linspace(0, 1, 50+1), decimals=2)
+num_sims_pr_scen = 80
+dur_single_sim_secs = 500
 
 def run_Simulations(adopt_rates, num_sims_pr_scen, dur_single_sim_secs, write = False):
     dF  = pd.DataFrame()
@@ -27,6 +27,7 @@ def run_Simulations(adopt_rates, num_sims_pr_scen, dur_single_sim_secs, write = 
     pos_time_rate_dict = {}
     tic = time()
     for rate in adopt_rates:
+        tic_1 = time()
         print(f"---------Running simulation for {rate} smart vehicle adoption rate---------")
         print(f"---------Running simulation for {dur_single_sim_secs} total_time---------")
 
@@ -48,6 +49,8 @@ def run_Simulations(adopt_rates, num_sims_pr_scen, dur_single_sim_secs, write = 
                     val_list = []
                 val_list += [m.metric_dict[key]]
                 metric_dict[new_key] = val_list
+        toc_1 = time()
+        print(f'time = {toc_1-tic_1} s')
     dF = pd.DataFrame(metric_dict)
     dF_pos_time_rate = pd.DataFrame(pos_time_rate_dict)
     toc = time()
@@ -135,7 +138,7 @@ def boxplot_from_dF(dF, value):
     plt.savefig('out/' + value + '_pb.pdf')
     plt.show()
     
-def time_plot(dF_pos_time_rate, plot_rates = None):
+def time_plot(dF_pos_time_rate, plot_rates = None, filename = None):
     pos_list = []
     times_list = []
     rates_list = []
@@ -156,6 +159,8 @@ def time_plot(dF_pos_time_rate, plot_rates = None):
             axs[i].set_xlabel('Time [s]')
             axs[i].set_ylabel('Mean Position [m]')
         plt.tight_layout()
+        if filename:
+            plt.savefig(filename)
         plt.show()
     
 
@@ -166,13 +171,14 @@ dF, dF_pos_time_rate = run_Simulations(adopt_rates, num_sims_pr_scen, dur_single
 #dF_pos_time_rate.to_excel('pos_time_rate.xlsx')
 #boxplot_from_dF(dF, 'velocities')
 #boxplot_from_dF(dF, 'mean_vel')
-time_plot(dF_pos_time_rate, [0.0, 0.5, 1.0])
+time_plot(dF_pos_time_rate, [0.0, 0.5, 1.0], )
 #boxplot_from_dF(dF, 'idle_time')
 #boxplot_from_dF(dF, 'lifetimes')
 #boxplot_from_dF(dF, 'median_vel')
-'''
-boxplot_from_dF(dF, 'velocities')
-boxplot_from_dF(dF, 'idle_time')
+
+#boxplot_from_dF(dF, 'velocities')
+#boxplot_from_dF(dF, 'idle_time')
+boxplot_from_dF(dF, 'mean_vel')
+boxplot_from_dF(dF, 'lifetimes')
 boxplot_from_dF(dF, 'deleted')
 boxplot_from_dF(dF, 'through_light')
-'''
