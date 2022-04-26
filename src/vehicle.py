@@ -182,7 +182,7 @@ class SmartVehicle(Vehicle):
             s_desired = self.s0 + self.v*(delta_v)/(2*np.sqrt(self.a_max*self.b_max))
     
             if delta_s-s_desired <= 0.2:
-                if abs(delta_v)<0.1:
+                if abs(delta_v)<0.1 and car_infront.route.cur_road == self.route.cur_road:
                     self.link = True
                     self.a=car_infront.a
                     self.state = "linked"

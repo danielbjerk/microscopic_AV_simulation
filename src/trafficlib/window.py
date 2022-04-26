@@ -39,7 +39,7 @@ class Window:
 
         # To draw text
         pygame.font.init()
-        self.text_font = pygame.font.SysFont('Lucida Console', 16)
+        self.text_font = pygame.font.SysFont('Lucida Console', 32)
 
 
     def animation_step(self, sim_state):
@@ -312,7 +312,7 @@ class Window:
         text_frc = self.text_font.render(f'n={frame_count}', False, (0, 0, 0))
         
         self.screen.blit(text_fps, (0, 0))
-        self.screen.blit(text_frc, (100, 0))
+        self.screen.blit(text_frc, (0, 35))
 
 
     def draw(self, sim_state):
