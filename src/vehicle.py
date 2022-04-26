@@ -34,25 +34,30 @@ class Vehicle:
         if not in_stop_zone:
             self.normal_acceleration(car_infront)
             return
-        else:
-            if light.is_green:
-                if self.v >= 10: self.run_this_light = True
+        if in_stop_zone and light.is_green:
+            if self.v >= 10: self.run_this_light = True
+            self.normal_acceleration(car_infront)
+            return
+        if in_stop_zone and not light.is_green and self.run_this_light:
+            self.normal_acceleration(car_infront)
+            return
+        """Fungerer ikke, er tiltenkt for å stoppe casen hvor biler kommer veeeldig nærme hverandre ved rødt lys
+        if car_infront:
+            if in_stop_zone and not light.is_green and not car_infront.run_this_light and car_infront.route.cur_road == self.route.cur_road:
                 self.normal_acceleration(car_infront)
                 return
-            else:
-                if self.run_this_light:        
-                    self.normal_acceleration(car_infront)
-                    return
-                elif car_infront:
-                    if car_infront.run_this_light and car_infront.route.cur_road == self.route.cur_road:
-                        self.damping()
-                        return
-                    if car_infront.route.cur_road == self.route.cur_road:
-                        self.normal_acceleration(car_infront)
-                        return
-                else:
-                    self.damping()
-                    return
+        """
+        if car_infront and not light.is_green and in_stop_zone:
+            if car_infront.run_this_light and car_infront.route.cur_road == self.route.cur_road:
+                self.damping()
+                return
+            if car_infront.route.cur_road == self.route.cur_road:
+                self.normal_acceleration(car_infront)
+                return
+
+        if in_stop_zone and not light.is_green and not self.run_this_light:
+            self.damping()
+            return
         self.normal_acceleration(car_infront)
         return
 
