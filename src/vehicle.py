@@ -21,9 +21,6 @@ class Vehicle:
         self.copy_next_v = False
 
         self.run_this_light = False
-    
-    def get_traversed_dist(self):
-        return self.traversed_dist + self.x
 
     def control_acceleration(self, car_infront, light):
         if not light:

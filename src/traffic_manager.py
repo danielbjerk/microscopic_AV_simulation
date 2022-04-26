@@ -61,8 +61,8 @@ class TrafficManager:
         try:
             self.deleted_vehicles += 1
             self.lifetimes.append(t - vehicle.spawn_time) ## Lifetime of vehicle when removed
-            #self.mean_vel.append(vehicle.full_dist/self.lifetimes[-1]) ## Full route len / lifetime
-            self.mean_vel.append(vehicle.get_traversed_dist()/self.lifetimes[-1]) ## Full route len / lifetime
+            self.mean_vel.append(vehicle.full_dist/self.lifetimes[-1]) ## Full route len / lifetime
+            
             self.vehicles.remove(vehicle)
             self.vehicles_on_road[vehicle.route.cur_road].remove(vehicle)
             return ("vehicle_removed", vehicle)
