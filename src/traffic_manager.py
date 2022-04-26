@@ -22,6 +22,7 @@ class TrafficManager:
         # List of total lifetime of deleted cars
         self.lifetimes = []
         self.mean_vel = []
+        self.cars_spawned = len(starting_vehicles)
 
         for v in starting_vehicles:
             self.vehicles_on_road[v.route.cur_road].append(v)
@@ -57,8 +58,9 @@ class TrafficManager:
         if not self.vehicle_buffers[source]:
             self.vehicle_buffers[source].append(vehicle)
 
-    def remove_vehicle(self, vehicle,t):
+    def remove_vehicle(self, vehicle, t):
         try:
+            vehicle.x = 0
             self.deleted_vehicles += 1
             self.lifetimes.append(t - vehicle.spawn_time) ## Lifetime of vehicle when removed
             self.mean_vel.append(vehicle.full_dist/self.lifetimes[-1]) ## Full route len / lifetime
@@ -106,6 +108,7 @@ class TrafficManager:
                     self.vehicles.append(vehicle)
                     self.vehicles_on_road[source_road].append(vehicle)
                     buffer.pop()
+                    self.cars_spawned += 1
         
         light_statuses = [l.update(t) for l in self.lights]
         vehicle_results = [v.update(dt, self.vehicle_in_front(v), self.lights_on_road[v.route.cur_road]) for v in self.vehicles]

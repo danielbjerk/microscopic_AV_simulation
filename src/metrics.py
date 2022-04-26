@@ -60,7 +60,8 @@ class Metrics:
         self.metric_dict['deleted'] =  manager.deleted_vehicles#np.array(self.deleted_list)
 
         #self.through_light_list.append(self.through_light_num)
-        self.metric_dict['through_light'] = manager.through_light#np.array(self.through_light_list)
+        self.metric_dict['through_light_abs'] = manager.through_light
+        self.metric_dict['through_light_rel'] = manager.through_light/manager.cars_spawned#np.array(self.through_light_list)
         #self.liftetimes = manager.lifetimes
         self.spawn_times = [car.spawn_time for car in manager.vehicles]
         self.metric_dict['lifetimes'] = np.mean(manager.lifetimes)

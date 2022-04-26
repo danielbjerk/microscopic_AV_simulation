@@ -112,7 +112,8 @@ def boxplot_from_dF(dF, value):
                     'idle_time' : 'Total stillestående tid', 
                     'Lifetime' : 'Tid fra start til slutt', 
                     'deleted': 'Biler som når enden', 
-                    'through_light': 'Gjennomflyt av biler i lyskryss',
+                    'through_light_abs': 'Gjennomflyt av biler i lyskryss',
+                    'through_light_rel': 'Andel av biler som fullfører ruten',
                     'lifetimes': 'Tid brukt på vei'}
 
     y_label_dict = {'velocities': r'Gjennomsnittsfart $[\frac{km}{h}]$', 
@@ -120,7 +121,8 @@ def boxplot_from_dF(dF, value):
                     'idle_time' : 'Total stillestående tid', 
                     'Lifetime' : 'Tid [s]', 
                     'deleted': 'Biler fjernet fra simulering', 
-                    'through_light': 'Biler gjennom lys',
+                    'through_light_abs': 'Biler gjennom lys',
+                    'through_light_rel': 'Andel biler',
                     'lifetimes': 'Tid [s]'}
     scaling = 1
     if value == 'velocities' or value == 'mean_vel': 
@@ -198,4 +200,5 @@ dF, dF_pos_time_rate = run_Simulations(adopt_rates, num_sims_pr_scen, dur_single
 #boxplot_from_dF(dF, 'mean_vel')
 #boxplot_from_dF(dF, 'lifetimes')
 #boxplot_from_dF(dF, 'deleted')
-#boxplot_from_dF(dF, 'through_light')
+#boxplot_from_dF(dF, 'through_light_abs')
+#boxplot_from_dF(dF, 'through_light_rel')
