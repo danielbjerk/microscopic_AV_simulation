@@ -4,8 +4,8 @@ class TrafficLight:
         self.pos = road.end 
         self.time_at_last_change = 0
         self.is_green = is_init_green
-        self.green_time = 10
-        self.red_time = 10
+        self.green_time = 30
+        self.red_time = 30
         self.stop_zone = 40
         self.show = True
 

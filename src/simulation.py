@@ -6,14 +6,19 @@ from metrics import Metrics
 from numpy.random import default_rng, uniform, randint
 import scenario as scen
 
-def run_N_simulations(scenario_config, N, dur_secs, **config):
+from time import time
+
+def run_N_simulations(scenario_config, N, dur_secs, config):
     N_metrics = []
     for i in range(N):
         scenario_i = scen.Scenario(scenario_config)
         print(f"Running simulation {i+1}...")
+        #tic_1 = time()
         sim = Simulation(scenario_i, **config)
-        metric_i = sim.run(dur_secs)
+        metric_i = sim.run(dur_secs,5)
         N_metrics.append(metric_i)
+        #toc_1 = time()
+        #print(f'time = {toc_1-tic_1} s')
     return N_metrics
 
 class Simulation:    
@@ -34,6 +39,7 @@ class Simulation:
                                             map=scenario.map, 
                                             lights=scenario.lights)
         
+        #self.generator = default_rng(seed=1)
         self.generator = default_rng()
 
         self.sources = scenario.sources
@@ -62,7 +68,7 @@ class Simulation:
             else:
                 vehicle = DumbVehicle(route, self.t)
                 # Stocastic reaction time
-                vehicle.T = max(0, vehicle.T + self.generator.normal(0, 0.0695))
+                vehicle.T = max(0, vehicle.T + self.generator.normal(0, 0.2))
                 self.traffic_manager.add_vehicle(source, vehicle)
 
             # Draw arrival time for the next vehicle at this source
@@ -75,7 +81,7 @@ class Simulation:
             win.start_animation()
 
         metrics_init = False
-        init_metrics_after_secs = 20
+        init_metrics_after_secs = 85
 
         for _ in range(duration*self.fps//steps_per_frame):
             if self.t >= init_metrics_after_secs and not metrics_init:
@@ -96,6 +102,6 @@ class Simulation:
                 if quit:
                     break
 
-        metrics.finalize(duration)
+        metrics.finalize(duration, self.traffic_manager)
 
         return metrics

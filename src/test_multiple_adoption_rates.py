@@ -16,43 +16,60 @@ metric_dict = {}    # Skal bli dataframe
 '''
 # Hyper-parameters
 
-adopt_rates = np.round(np.linspace(0, 1, 5+1), decimals=2)
-num_sims_pr_scen = 10
-dur_single_sim_secs = 80
+adopt_rates = np.round(np.linspace(0, 1, 50+1), decimals=2)
+num_sims_pr_scen = 80
+dur_single_sim_secs = 500
 
-def run_Simulations(adopt_rates, num_sims_pr_scen, dur_single_sim_secs, write = False):
+def run_Simulations(adopt_rates, num_sims_pr_scen, dur_single_sim_secs, write = True):
     dF  = pd.DataFrame()
     meta_metrics = []
     metric_dict = {}    # Skal bli dataframe
+    pos_time_rate_dict = {}
     tic = time()
     for rate in adopt_rates:
+        tic_1 = time()
         print(f"---------Running simulation for {rate} smart vehicle adoption rate---------")
         print(f"---------Running simulation for {dur_single_sim_secs} total_time---------")
 
         sim_metrics = simulation.run_N_simulations(scenario_config, N=num_sims_pr_scen, dur_secs=dur_single_sim_secs, 
-                                                animate=False, smart_vehicle_adoption=rate)
-
+                                                config={"animate" : False, "smart_vehicle_adoption" : rate})
+        '''
         its = np.array(range(num_sims_pr_scen))
         avgs = np.array([m.avg_of_avgs for m in sim_metrics])
         meta_metrics.append(np.nanmean(avgs))
-        
+        '''
+        time_pos_rate_mean_dict = {}
+        pos_mean = [[] for pos in sim_metrics[0].time_pos[1]]
         for m in sim_metrics:
+            m.time_pos.append([rate for i in range(len(m.time_pos[0]))])
+            for i in range(len(m.time_pos[1])):
+                pos_mean[i].append(m.time_pos[1][i])
             for key in m.metric_dict:
                 new_key = str(rate) + ' ' + key
-                
                 if new_key in metric_dict.keys():
                     val_list = metric_dict[new_key]
                 else: 
                     val_list = []
                 val_list += [m.metric_dict[key]]
                 metric_dict[new_key] = val_list
+        mean = []
+        for i in range(len(pos_mean)):
+            mean.append(np.mean(pos_mean[i]))
+            #print(np.std(pos_mean[i]))
+            m.time_pos[1] = mean
+        pos_time_rate_dict[rate] = m.time_pos
+        toc_1 = time()
+        #print(pos_mean)
+        print(f'time = {toc_1-tic_1} s')
     dF = pd.DataFrame(metric_dict)
+    dF_pos_time_rate = pd.DataFrame(pos_time_rate_dict)
     toc = time()
     if write:
         dF.to_excel('metrics.xlsx')
+        dF_pos_time_rate.to_excel('pos_time_rate.xlsx')
 
     print(f'time = {toc-tic} s')
-    return dF
+    return dF, dF_pos_time_rate
 
 
 # meta_metrics = np.array(meta_metrics)
@@ -91,18 +108,24 @@ plot_from_dF(dF, 'through_light', True)
 '''
 def boxplot_from_dF(dF, value):
     title_dict = {'velocities': r'Fart av biler', 
+                    'mean_vel': r'Fart av biler', 
                     'idle_time' : 'Total stillestående tid', 
+                    'Lifetime' : 'Tid fra start til slutt', 
                     'deleted': 'Biler som når enden', 
-                    'through_light': 'Gjennomflyt av biler i lyskryss',
+                    'through_light_abs': 'Gjennomflyt av biler i lyskryss',
+                    'through_light_rel': 'Andel av biler som fullfører ruten',
                     'lifetimes': 'Tid brukt på vei'}
 
-    y_label_dict = {'velocities': r'Gjennomsnittsfart $\big[\frac{km}{h}\big]$', 
-                    'idle_time' : 'Samlet ventetid [s]', 
+    y_label_dict = {'velocities': r'Gjennomsnittsfart $[\frac{km}{h}]$', 
+                    'mean_vel': r'Gjennomsnittsfart $[\frac{km}{h}]$', 
+                    'idle_time' : 'Total stillestående tid', 
+                    'Lifetime' : 'Tid [s]', 
                     'deleted': 'Biler fjernet fra simulering', 
-                    'through_light': 'Biler gjennom lys',
+                    'through_light_abs': 'Biler gjennom lys',
+                    'through_light_rel': 'Andel biler',
                     'lifetimes': 'Tid [s]'}
     scaling = 1
-    if value == 'velocities': 
+    if value == 'velocities' or value == 'mean_vel': 
         scaling =  3.6 ## m/s to km/h
     elif value == 'idle_time':
         scaling = 1 / 60 ## frames to seconds
@@ -117,8 +140,8 @@ def boxplot_from_dF(dF, value):
     #plt.plot(rates, avg, 'o-')
     #print(np.unique(rates)[::4])
     #print(avgs)
-    print(np.mean(avgs))
-    print(len(rates), len(avgs))
+    #print(np.mean(avgs))
+    #print(len(rates), len(avgs))
     plt.boxplot(avgs, positions= rates, widths=0.01)
     plt.xlim((min(rates)-0.05, max(rates)+0.05))
     if value in title_dict:
@@ -132,16 +155,50 @@ def boxplot_from_dF(dF, value):
     plt.savefig('out/' + value + '_pb.pdf')
     plt.show()
     
+def time_plot(dF_pos_time_rate, plot_rates = None, filename = None):
+    pos_list = []
+    times_list = []
+    rates_list = []
+    #print('dF_pos_time_rate', dF_pos_time_rate.keys())
+    #print(dF_pos_time_rate[0.0].to_list())
+    if plot_rates:
+        fig, axs = plt.subplots(len(plot_rates),1)#,sharex=True, sharey=True)
+        for rate in plot_rates:
+            times, pos, rates = dF_pos_time_rate[rate].to_list()
+            #print(pos)
+            pos_list.append(pos)
+            times_list.append(times)
+            rates_list.append(rates)
+        #print(axs[0])
+        for i in range(len(plot_rates)):
+            axs[i].plot(times_list[i], pos_list[i], '-')
+            axs[i].set_title(f'Rate {plot_rates[i]}')
+            axs[i].set_xlabel('Time [s]')
+            axs[i].set_ylabel('Mean Position [m]')
+            #axs[i].axhline(600, xmin = min(times_list[i]), xmax = max(times_list[i]), color = 'black')
+        plt.tight_layout()
+        if filename:
+            plt.savefig(filename)
+        plt.show()
+    
 
 
-dF = run_Simulations(adopt_rates, num_sims_pr_scen, dur_single_sim_secs, write = True)
-print(dF.keys())
-boxplot_from_dF(dF, 'idle_time')
-boxplot_from_dF(dF, 'lifetimes')
+dF, dF_pos_time_rate = run_Simulations(adopt_rates, num_sims_pr_scen, dur_single_sim_secs, write = True)
+#print(dF.keys())
+#print(dF_time.keys())
+
+#boxplot_from_dF(dF, 'velocities')
+#boxplot_from_dF(dF, 'mean_vel')
+#time_plot(dF_pos_time_rate, [0.0, 0.5, 1.0], )
+#time_plot(dF_pos_time_rate, [0.0, 0.5, 1.0], 'out/pos_time_rates.pdf') 
+#boxplot_from_dF(dF, 'idle_time')
+#boxplot_from_dF(dF, 'lifetimes')
 #boxplot_from_dF(dF, 'median_vel')
-'''
-boxplot_from_dF(dF, 'velocities')
-boxplot_from_dF(dF, 'idle_time')
-boxplot_from_dF(dF, 'deleted')
-boxplot_from_dF(dF, 'through_light')
-'''
+
+#boxplot_from_dF(dF, 'velocities')
+#boxplot_from_dF(dF, 'idle_time')
+#boxplot_from_dF(dF, 'mean_vel')
+#boxplot_from_dF(dF, 'lifetimes')
+#boxplot_from_dF(dF, 'deleted')
+#boxplot_from_dF(dF, 'through_light_abs')
+#boxplot_from_dF(dF, 'through_light_rel')

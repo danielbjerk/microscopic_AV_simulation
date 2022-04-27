@@ -4,6 +4,8 @@ class Vehicle:
     def __init__(self, route, time):  
         self.spawn_time = time  # Time the vehicle spawns
         self.route = route
+        self.full_dist = np.sum([road.length for road in route.roads]) # Length of all roads on route
+        self.traversed_dist = 0
 
         self.l = 4              # length of vehicle i
 
@@ -19,6 +21,9 @@ class Vehicle:
         self.copy_next_v = False
 
         self.run_this_light = False
+    
+    def get_traversed_dist(self):
+        return self.traversed_dist + self.x
 
     def control_acceleration(self, car_infront, light):
         if not light:
@@ -118,7 +123,7 @@ class DumbVehicle(Vehicle):
         super().__init__(route, time)
 
         #Parameters for idm: 
-        self.T = 1              # Reaction time of vehicle i's driver. Set to 0 when self.smart==True.
+        self.T = 1.0            # Reaction time of vehicle i's driver. Set to 0 when self.smart==True.
         self.delta = 4          # smoothness of the acceleration
         self.s0 = 8             # min desired distance between vehicle i and i-1. 
         #!!Note: s0 needs to be bigger than car_infront.l, or else the desired distance is inside the vehicle in front.
@@ -177,7 +182,7 @@ class SmartVehicle(Vehicle):
             s_desired = self.s0 + self.v*(delta_v)/(2*np.sqrt(self.a_max*self.b_max))
     
             if delta_s-s_desired <= 0.2:
-                if abs(delta_v)<0.1:
+                if abs(delta_v)<0.1 and car_infront.route.cur_road == self.route.cur_road:
                     self.link = True
                     self.a=car_infront.a
                     self.state = "linked"
