@@ -141,3 +141,4 @@ if __name__=="__main__":
     edges = all_road_connections(roads)
     sources, sinks = sources_and_sinks(nodes, edges)
     print(all_valid_routes(nodes, sources, sinks, edges))
+    

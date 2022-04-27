@@ -9,20 +9,14 @@ import matplotlib.pyplot as plt
 # Create simulation
 scenario_path = "scenarios/straight_with_lights.toml"
 scenario_config = toml.load(scenario_path)
-'''
-dF  = pd.DataFrame()
-meta_metrics = []
-metric_dict = {}    # Skal bli dataframe
-'''
-# Hyper-parameters
 
+# Hyper-parameters
 adopt_rates = np.round(np.linspace(0, 1, 50+1), decimals=2)
 num_sims_pr_scen = 80
 dur_single_sim_secs = 500
 
 def run_Simulations(adopt_rates, num_sims_pr_scen, dur_single_sim_secs, write = True):
     dF  = pd.DataFrame()
-    meta_metrics = []
     metric_dict = {}    # Skal bli dataframe
     pos_time_rate_dict = {}
     tic = time()
@@ -33,12 +27,6 @@ def run_Simulations(adopt_rates, num_sims_pr_scen, dur_single_sim_secs, write = 
 
         sim_metrics = simulation.run_N_simulations(scenario_config, N=num_sims_pr_scen, dur_secs=dur_single_sim_secs, 
                                                 config={"animate" : False, "smart_vehicle_adoption" : rate})
-        '''
-        its = np.array(range(num_sims_pr_scen))
-        avgs = np.array([m.avg_of_avgs for m in sim_metrics])
-        meta_metrics.append(np.nanmean(avgs))
-        '''
-        time_pos_rate_mean_dict = {}
         pos_mean = [[] for pos in sim_metrics[0].time_pos[1]]
         for m in sim_metrics:
             m.time_pos.append([rate for i in range(len(m.time_pos[0]))])
@@ -55,11 +43,9 @@ def run_Simulations(adopt_rates, num_sims_pr_scen, dur_single_sim_secs, write = 
         mean = []
         for i in range(len(pos_mean)):
             mean.append(np.mean(pos_mean[i]))
-            #print(np.std(pos_mean[i]))
             m.time_pos[1] = mean
         pos_time_rate_dict[rate] = m.time_pos
         toc_1 = time()
-        #print(pos_mean)
         print(f'time = {toc_1-tic_1} s')
     dF = pd.DataFrame(metric_dict)
     dF_pos_time_rate = pd.DataFrame(pos_time_rate_dict)
@@ -71,10 +57,6 @@ def run_Simulations(adopt_rates, num_sims_pr_scen, dur_single_sim_secs, write = 
     print(f'time = {toc-tic} s')
     return dF, dF_pos_time_rate
 
-
-# meta_metrics = np.array(meta_metrics)
-# plt.plot(adopt_rates, meta_metrics)
-# plt.show()
 
 
 def plot_from_dF(dF, value, error = False, plot_sdt = False):
@@ -100,12 +82,9 @@ def plot_from_dF(dF, value, error = False, plot_sdt = False):
         plt.ylabel(f'SD {value}')
         plt.savefig(value + '.pdf')
         plt.show()
-'''
-plot_from_dF(dF, 'velocities', True, True)
-plot_from_dF(dF, 'idle_time', True, True)
-plot_from_dF(dF, 'deleted', True)
-plot_from_dF(dF, 'through_light', True)
-'''
+
+
+
 def boxplot_from_dF(dF, value):
     title_dict = {'velocities': r'Fart av biler', 
                     'mean_vel': r'Fart av biler', 

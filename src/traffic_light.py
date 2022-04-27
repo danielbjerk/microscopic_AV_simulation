@@ -1,7 +1,7 @@
 class TrafficLight:
-    def __init__(self, road, is_init_green = True):
+    def __init__(self, road, is_init_green=True):
         self.road = road
-        self.pos = road.end 
+        self.pos = road.end
         self.time_at_last_change = 0
         self.is_green = is_init_green
         self.green_time = 30

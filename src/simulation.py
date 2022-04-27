@@ -8,6 +8,7 @@ import scenario as scen
 
 from time import time
 
+
 def run_N_simulations(scenario_config, N, dur_secs, config):
     N_metrics = []
     for i in range(N):
@@ -15,13 +16,14 @@ def run_N_simulations(scenario_config, N, dur_secs, config):
         print(f"Running simulation {i+1}...")
         #tic_1 = time()
         sim = Simulation(scenario_i, **config)
-        metric_i = sim.run(dur_secs,5)
+        metric_i = sim.run(dur_secs, 5)
         N_metrics.append(metric_i)
         #toc_1 = time()
         #print(f'time = {toc_1-tic_1} s')
     return N_metrics
 
-class Simulation:    
+
+class Simulation:
     def __init__(self, scenario, **config):
         self.t = 0.0            # Time keeping
         self.frame_count = 0    # Frame count keeping
@@ -32,29 +34,29 @@ class Simulation:
 
         for attr, val in config.items():
             setattr(self, attr, val)
-        
+
         self.scenario = scenario
-        self.traffic_manager = TrafficManager(sources=scenario.sources, 
-                                            starting_vehicles=scenario.starting_vehicles, 
-                                            map=scenario.map, 
-                                            lights=scenario.lights)
-        
+        self.traffic_manager = TrafficManager(sources=scenario.sources,
+                                              starting_vehicles=scenario.starting_vehicles,
+                                              map=scenario.map,
+                                              lights=scenario.lights)
+
         #self.generator = default_rng(seed=1)
         self.generator = default_rng()
 
         self.sources = scenario.sources
-        self.ex_arrival_times = scenario.arrival_times # Expected arrival times
-        self.arrival_times = {source: self.generator.exponential(time) for source, time in self.ex_arrival_times.items()}
+        self.ex_arrival_times = scenario.arrival_times  # Expected arrival times
+        self.arrival_times = {source: self.generator.exponential(
+            time) for source, time in self.ex_arrival_times.items()}
 
     def update(self):
         self.t += self.dt
         self.frame_count += 1
-        
+
         self.traffic_manager.update_traffic(self.dt, self.t)
 
         for source in self.sources:
             self.generate_vehicle(source, self.scenario.routes[source])
-
 
     def generate_vehicle(self, source, routes):
         if self.t >= self.arrival_times[source]:
@@ -64,7 +66,8 @@ class Simulation:
 
             # Add a smart car or a normal car to the queue.
             if uniform() < self.smart_vehicle_adoption:
-                self.traffic_manager.add_vehicle(source, SmartVehicle(route, self.t))
+                self.traffic_manager.add_vehicle(
+                    source, SmartVehicle(route, self.t))
             else:
                 vehicle = DumbVehicle(route, self.t)
                 # Stocastic reaction time
@@ -72,9 +75,10 @@ class Simulation:
                 self.traffic_manager.add_vehicle(source, vehicle)
 
             # Draw arrival time for the next vehicle at this source
-            self.arrival_times[source] = self.t + self.generator.exponential(self.ex_arrival_times[source])
+            self.arrival_times[source] = self.t + \
+                self.generator.exponential(self.ex_arrival_times[source])
 
-    def run(self, duration, steps_per_frame = 1):
+    def run(self, duration, steps_per_frame=1):
         """Run the simulation. The duration is in seconds."""
         if self.animate:
             win = Window()
@@ -85,20 +89,21 @@ class Simulation:
 
         for _ in range(duration*self.fps//steps_per_frame):
             if self.t >= init_metrics_after_secs and not metrics_init:
-                metrics = Metrics() # Burde kanskje være klassevariabel i simulation? Kanskje ikke?
+                metrics = Metrics()
                 metrics_init = True
-            
+
             for _ in range(steps_per_frame):
                 self.update()
-                if metrics_init: metrics.measure(self.t, self.traffic_manager)
+                if metrics_init:
+                    metrics.measure(self.t, self.traffic_manager)
 
             if self.animate:
                 quit = win.animation_step(
                     (self.traffic_manager.vehicles_on_road,
-                    self.traffic_manager.lights,
-                    self.t,
-                    self.frame_count))
-            
+                     self.traffic_manager.lights,
+                     self.t,
+                     self.frame_count))
+
                 if quit:
                     break
 

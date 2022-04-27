@@ -10,7 +10,7 @@ scenario.lights[0].show = False
 scenario.lights[0].green_time = 60
 scenario.lights[0].red_time = 10
 
-sim = Simulation(scenario, animate = True, smart_vehicle_adoption = 0.0)
+sim = Simulation(scenario, animate=True, smart_vehicle_adoption=0.0)
 
 # Start simulation
 
