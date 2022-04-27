@@ -1,6 +1,0 @@
-title = "Microscopic Autonomous Simulation"
-
-[simulation]
-time_start = 0.0
-time_end = 50.0
-time_step = 0.01
