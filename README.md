@@ -4,16 +4,16 @@
 Library and scipts for microscopic modelling, simulation and plotting of metrics of smart vehicles in a traffic-situation.
 
 ## Requirement
-Install all with 
-```bash
-pip install -r requirements.txt
-```
 - numpy
 - pygame
 - toml
 - pandas
 - openpyxl
 - matplotlib
+Install all with 
+```bash
+pip install -r requirements.txt
+```
 
 ## Contributors
 - Daniel Bjerkehagen
