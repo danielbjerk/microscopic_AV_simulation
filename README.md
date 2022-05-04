@@ -1,8 +1,19 @@
+[![DOI](https://zenodo.org/badge/457325425.svg)](https://zenodo.org/badge/latestdoi/457325425)
+
 # Microscopic AV simulation
 Library and scipts for microscopic modelling, simulation and plotting of metrics of smart vehicles in a traffic-situation.
 
 ## Requirement
-See requirements.txt
+Install all with 
+```bash
+pip install -r requirements.txt
+```
+- numpy
+- pygame
+- toml
+- pandas
+- openpyxl
+- matplotlib
 
 ## Contributors
 - Daniel Bjerkehagen
