@@ -20,7 +20,7 @@ pip install -r requirements.txt
 - Daniel Bjerkehagen
 - Pål Emil England Karstensen
 - Kristian Lampe
-- Robin Østern Lie
+- Robin Østern Lien
 - Sivert Skovereng
 
 ## Acknowledgements
